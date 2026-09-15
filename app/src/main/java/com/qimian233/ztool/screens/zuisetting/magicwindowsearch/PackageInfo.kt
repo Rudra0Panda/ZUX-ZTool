@@ -48,10 +48,10 @@ class PackageInfo @Throws(JSONException::class) constructor(jsonObject: JSONObje
         }
     }
 
-    // 解析其他字符串字段
-    val showEmbeddingDivider: String = jsonObject.optString("showEmbeddingDivider", "未设置")
-    val skipLetterboxDisplayInfo: String = jsonObject.optString("skipLetterboxDisplayInfo", "未设置")
-    val skipMultiWindowMode: String = jsonObject.optString("skipMultiWindowMode", "未设置")
-    val showSurfaceViewBackground: String = jsonObject.optString("showSurfaceViewBackground", "未设置")
-    val shouldPausePrimaryActivity: String = jsonObject.optString("shouldPausePrimaryActivity", "未设置")
+    // Parse other string fields
+    val showEmbeddingDivider: String = jsonObject.optString("showEmbeddingDivider", "Not set")
+    val skipLetterboxDisplayInfo: String = jsonObject.optString("skipLetterboxDisplayInfo", "Not set")
+    val skipMultiWindowMode: String = jsonObject.optString("skipMultiWindowMode", "Not set")
+    val showSurfaceViewBackground: String = jsonObject.optString("showSurfaceViewBackground", "Not set")
+    val shouldPausePrimaryActivity: String = jsonObject.optString("shouldPausePrimaryActivity", "Not set")
 }

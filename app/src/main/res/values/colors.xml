@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- 主色调 -->
+    <!-- Primary colors -->
     <color name="colorPrimary">#2196F3</color>
     <color name="colorPrimaryDark">#1976D2</color>
     <color name="colorAccent">#FF9800</color>
     <color name="colorAccentDark">#F57C00</color>
 
-    <!-- 语义颜色 -->
+    <!-- Semantic colors -->
     <color name="colorSuccess">#4CAF50</color>
     <color name="colorError">#F44336</color>
     <color name="colorErrorDark">#D32F2F</color>
 
-    <!-- 背景颜色 -->
+    <!-- Background colors -->
     <color name="colorBackground">#FAFAFA</color>
     <color name="colorSurface">#FFFFFF</color>
     <color name="colorSurfaceVariant">#F5F5F5</color>
 
-    <!-- 文本颜色 -->
+    <!-- Text colors -->
     <color name="colorOnSurface">#212121</color>
     <color name="colorOnSurfaceVariant">#757575</color>
     <color name="colorOutline">#E0E0E0</color>

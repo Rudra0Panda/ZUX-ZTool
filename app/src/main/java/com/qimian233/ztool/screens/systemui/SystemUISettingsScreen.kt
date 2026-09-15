@@ -207,14 +207,14 @@ private fun systemUiSettingsSections(
                     key = "system_ui_hub_control_center"
                 ),
                 systemUiNavigationItem(
-                    title = "动画与壁纸",
-                    summary = "充电动画与桌面动态壁纸设置",
+                    title = stringResource(R.string.system_ui_animation_wallpaper_setting_title),
+                    summary = stringResource(R.string.system_ui_animation_wallpaper_setting_summary),
                     onClick = onOpenAnimationWallpaper,
                     key = "system_ui_hub_animation_wallpaper"
                 ),
                 systemUiNavigationItem(
                     title = stringResource(R.string.system_ui_common_misc),
-                    summary = "访客模式、生物识别震动等杂项设置",
+                    summary = stringResource(R.string.system_ui_misc_setting_summary),
                     onClick = onOpenMisc,
                     key = "system_ui_hub_misc"
                 )

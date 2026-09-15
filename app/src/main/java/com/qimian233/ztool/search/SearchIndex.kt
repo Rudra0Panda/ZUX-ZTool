@@ -839,7 +839,7 @@ object SearchIndex {
             summaryRes = R.string.system_framework_ai_input_expand_summary
         ),
 
-        // ── ZUI settings detail (com.android.settings) ──
+        // ── Hello UI settings detail (com.android.settings) ──
         settingsDetail.item(
             id = "settings_detail_remove_blacklist",
             titleRes = R.string.settings_embedding_setting_remove_blacklist,
@@ -1254,7 +1254,7 @@ object SearchIndex {
             summaryRes = R.string.safe_center_bypass_docements_ui_summary
         ),
 
-        // ── ZUI performance ──
+        // ── Hello UI performance ──
         zuiPerformance.item(
             id = "zui_pp_block_power_policy",
             titleRes = R.string.zui_pp_block_power_policy_title,

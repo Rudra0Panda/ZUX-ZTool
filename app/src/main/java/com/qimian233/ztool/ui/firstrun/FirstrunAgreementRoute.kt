@@ -208,7 +208,7 @@ fun FirstrunAgreementRoute(
                         markdownText = uiState.agreementMarkdown,
                         pageScrollState = agreementPageScrollState,
                         readScrollState = agreementReadScrollState,
-                        firstPageReady = gate.satisfied,
+                        firstPageReady = true,
                         onNext = { tapAnchor ->
                             viewModel.acceptAgreement()
                             revealNavigation = true
@@ -225,7 +225,7 @@ fun FirstrunAgreementRoute(
                     )
                     FirstrunPage.Permissions -> PermissionPage(
                         state = uiState.checkState,
-                        allGranted = uiState.checkState.allGranted && gate.satisfied,
+                        allGranted = uiState.checkState.allGranted,
                         pageScrollState = permissionPageScrollState,
                         onRequestRoot = { viewModel.refreshChecks() },
                         onCheckModule = { viewModel.refreshChecks() },

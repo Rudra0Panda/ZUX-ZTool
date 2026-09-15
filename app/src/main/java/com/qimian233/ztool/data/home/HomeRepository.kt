@@ -77,7 +77,10 @@ class HomeRepository(
             cachedRomRegion = getRomRegion()
         }
         if (isSystemInfoCacheExpired()) {
-            cachedIsZuxOsDevice = Build.DISPLAY.contains("ZUXOS") || Build.DISPLAY.contains("ZUI")
+            cachedIsZuxOsDevice = Build.DISPLAY.contains("ZUXOS") ||
+                Build.DISPLAY.contains("ZUI") ||
+                Build.DISPLAY.contains("Hello UI", ignoreCase = true) ||
+                Build.DISPLAY.contains("HelloUI", ignoreCase = true)
         }
 
         lastSystemInfoUpdate = System.currentTimeMillis()

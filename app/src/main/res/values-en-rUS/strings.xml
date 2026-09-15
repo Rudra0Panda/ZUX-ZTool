@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Common string resources placed below -->
     <string name="system_ui_common_tooltip_content_description">Tip</string>
     <string name="common_quick_help_lookup_title">Quick lookup</string>
     <string name="common_quick_help_examples_title">Example</string>
@@ -21,6 +21,7 @@
     <string name="page_home_framework">Framework info</string>
     <string name="settings_misc">Misc</string>
     <string name="common_app_icon">App Icon</string>
+    <!-- FirstRun resource values -->
     <string name="page_firstrun_agreement_title">Swipe to read the complete user agreement</string>
     <string name="page_firstrun_agreement_confirm">I agree</string>
     <string name="page_firstrun_agreement_dismiss">I disagree, exit</string>
@@ -42,6 +43,7 @@
     <string name="page_firstrun_usage_summary">Check whether Usage Access permission is available. This permission is required when adding customized OneVision rules.</string>
     <string name="page_firstrun_overlay_title">Overlay</string>
     <string name="page_firstrun_overlay_summary">Check whether overlay permission is available. Displaying OneVision wizard needs this permission.</string>
+    <!-- Restart menu resource values -->
     <string name="page_home_soft_reboot">Soft reboot</string>
     <string name="page_home_reboot">Reboot</string>
     <string name="page_home_bootloader">Reboot to Bootloader</string>
@@ -55,11 +57,14 @@
     <string name="page_home_edl_confirm_message">Reboot to EDL (Emergency Download mode)?\n\nPress Power + Volume Down to exit. If that does not work, hold all three buttons until the screen lights up.</string>
     <string name="page_home_reboot_success">Reboot command sent!</string>
     <string name="page_home_reboot_failed">Failed to reboot: %s</string>
+    <!-- Home page resource values -->
     <string name="page_home_update_available_title">Update Available</string>
     <string name="page_settings_update_available_version_format">New version: %1$s (Build %2$d)</string>
     <string name="page_home_update_button_update">Upgrade now</string>
     <string name="page_home_update_button_ignore">Skip this version</string>
     <string name="page_home_update_ignore_toast">Turn off update notice until next new version</string>
+    <string name="page_settings_app_name" translatable="false">ZTool</string>
+    <string name="page_home_build_code" translatable="false">%s (Build %d)</string>
     <string name="page_home_device_info">Device Info</string>
     <string name="page_home_device_code_name">Project Code</string>
     <string name="page_home_android_version">Android</string>
@@ -71,6 +76,7 @@
     <string name="page_home_title">Homepage</string>
     <string name="page_home_environment_state">State</string>
     <string name="page_home_environment_ready">Environment Ready</string>
+    <string name="page_home_homepage_yiyan" translatable="false">%1$s - %2$s</string>
     <string name="page_home_module_active">Module Activated</string>
     <string name="page_home_module_inactive">Module not activated</string>
     <string name="page_home_no_root_permission">No Root permission</string>
@@ -80,15 +86,20 @@
     <string name="page_home_magisk_su_format">Magisk (%s)</string>
     <string name="page_home_kernelsu_format">KernelSU (%s)</string>
     <string name="page_home_apatch_format">APatch (%s)</string>
+    <string name="mobile_desktop_app_name">Readyfor</string>
     <string name="mobile_desktop_super_connect_scope_title">Readyfor</string>
     <string name="page_home_unknown_root_available">Unknown solution</string>
+    <string name="page_home_lsposed_standard_format" translatable="false">%1$s %2$s (%3$d), API %4$d</string>
     <string name="page_home_unknown_framework">Unknown framework</string>
+    <string name="page_home_android_version_prefix" translatable="false">Android %s</string>
     <string name="page_home_config_upgraded_tip_title">Note: Config upgraded</string>
+    <string name="page_home_config_upgraded_tip_message">The current version changed the configuration file format.\nRestart the system to keep configuration reading and writing working correctly.</string>
     <string name="page_home_restart_system_button">Reboot now</string>
     <string name="page_home_do_not_restart_system_button">Do not reboot</string>
     <string name="page_home_have_not_restart_warn">New config will not take effect until next reboot</string>
     <string name="page_home_slot_a">Slot A</string>
     <string name="page_home_slot_b">Slot B</string>
+    <!-- Feature management page resource values -->
     <string name="page_features_title">Features Management</string>
     <string name="settings_app_name">Settings</string>
     <string name="settings_app_description">Magic Window and other useful tweaks.</string>
@@ -109,7 +120,7 @@
     <string name="safe_center_app_description">Allow selection Internal Storage, disable safe scan and manage APP auto start.</string>
     <string name="tb_engine_app_name">UDS Realtime Connection Engine</string>
     <string name="tb_engine_app_description">Auto download, auto install, pre-installed app updates and push settings</string>
-    <string name="zui_pp_app_name">ZUI Performance Service</string>
+    <string name="zui_pp_app_name">Hello UI Performance Service</string>
     <string name="zui_pp_app_description">Block cloud-synced power policies and game policy OTA delivery</string>
     <string name="zui_pp_setting_title">Cloud Policy Blocking</string>
     <string name="zui_pp_block_power_policy_title">Block power policy cloud sync</string>
@@ -138,7 +149,7 @@
     <string name="tb_engine_cert_module_required_install">Install</string>
     <string name="page_features_app_list_permission_warning">Unable to get all installed APPs. Please, check the permission of querying APP list and restart ZTool to fix this problem.</string>
     <string name="page_features_all_filtered_warning">All applications are filtered!</string>
-    <string name="page_home_config_upgraded_tip_message">The current version changed the configuration file format.\nRestart the system to keep configuration reading and writing working correctly.</string>
+    <!-- Log page resource values -->
     <string name="settings_close_button">Close</string>
     <string name="page_settings_export_logs_success">Logs exported</string>
     <string name="page_settings_export_logs_failed">Failed to export logs</string>
@@ -149,6 +160,8 @@
     <string name="page_settings_delete_logs_failed">Failed to delete logs</string>
     <string name="page_settings_delete_logs_confirmation">Are you sure you want to delete all logs? This cannot be undone.</string>
     <string name="common_lsposed_log_sync_failed">Failed to sync LSPosed logs. Please check root permission.</string>
+
+    <!-- Settings page resource values -->
     <string name="page_settings_title">Settings</string>
     <string name="page_settings_enable_detailed_logging">Detailed logging</string>
     <string name="page_settings_enable_detailed_logging_description">Enable this when reporting issues. Restart the scope after changing this switch.</string>
@@ -174,12 +187,28 @@
     <string name="page_settings_show_about_page">About ZTool</string>
     <string name="page_settings_config_backup_success">Configuration backed up</string>
     <string name="page_settings_about_ztool_title">About ZTool</string>
+    <string name="page_settings_about_developers_title">Developers</string>
+    <string name="page_settings_about_acknowledgements_title">Credits</string>
+    <string name="page_settings_about_open_source_title">Open-Source Information</string>
+    <string name="page_settings_about_app_update_section_title">APP Update</string>
+    <string name="page_settings_about_app_update_title">Check APP Update</string>
+    <string name="page_settings_about_app_update_placeholder_summary">Click to check ZTool\'s update</string>
+    <string name="page_settings_about_app_update_latest_summary">You are using the latest version</string>
+    <string name="page_settings_about_view_source_title">Review source code on our GitHub</string>
+    <string name="page_settings_about_license_title">License Information</string>
+    <string name="page_settings_about_license_summary">This project is released under Apache License 2.0</string>
+    <string name="page_settings_about_qimian233_summary">Initiator, Hooks and User Interface</string>
+    <string name="page_settings_about_wasd_destroy_summary">Hooks and User Interface</string>
+    <string name="page_settings_about_uuuddddl">Hooks</string>
+    <string name="page_settings_about_unfuckzui_summary">Feature references and inspirations</string>
     <string name="page_settings_about_zuxos_plus_summary">Feature inspirations</string>
     <string name="page_settings_final_confirmation_title">Final Confirmation</string>
     <string name="page_settings_restore_default_confirmation">Are you sure you want to restore the default configuration? This will reset all settings to their initial state.</string>
     <string name="page_settings_default_config_restored">Default configuration restored</string>
     <string name="page_settings_config_restore_success">Configuration restored from file</string>
     <string name="common_log_service_require_manual_restart">Failed to restart the log service automatically. Please start it manually.</string>
+
+    <!-- Common restart scope resources -->
     <string name="common_restart_xp_title">Restart Scope?</string>
     <string name="common_restart_xp_message_header">"Restart the scope for this page? This will force stop "</string>
     <string name="common_restart_xp_message"> process.</string>
@@ -187,6 +216,7 @@
     <string name="common_restart_no">Cancel</string>
     <string name="common_restart_success">Restarted</string>
     <string name="common_restart_fail">Restart failed: </string>
+    <!-- Game Assistant feature page resource values -->
     <string name="common_select_default">Disabled</string>
     <string name="game_tool_select_all_games">All games</string>
     <string name="common_select_white_list">Whitelist only</string>
@@ -206,6 +236,7 @@
     <string name="game_tool_f_ix_cpu_frequency_summary">Tested only on TB710FU. Fixes frequency always showing 0 after using Y700 4th Gen Game Assistant.</string>
     <string name="game_tool_fix_soc_temp">Fix SoC temperature display</string>
     <string name="game_tool_fix_soc_temp_summary">Tested only on TB710FU. Fixes temperature always showing 0 after using Y700 4th Gen Game Assistant.</string>
+    <!-- System update feature page resource values -->
     <string name="system_update_firmware_download_link">Download link: </string>
     <string name="system_update_firmware_extract_password">Extract password: </string>
     <string name="system_update_firmware_platform_and_method">Platform/flashing method: </string>
@@ -244,6 +275,7 @@
     <string name="system_update_current_version_fmt">Current system version: %1$s</string>
     <string name="system_update_current_sn_fmt">Current device SN: %1$s</string>
     <string name="system_update_loading_ellipsis">Loading…</string>
+    <!-- Detailed settings related strings -->
     <string name="settings_got_it_button">Got it</string>
     <string name="settings_installing_module">Installing module…</string>
     <string name="settings_removing_module">Removing module…</string>
@@ -257,6 +289,9 @@
     <string name="settings_overlay_permission_denied">Overlay permission was not granted</string>
     <string name="settings_floating_window_started">Configuration wizard started</string>
     <string name="settings_floating_window_closed">Configuration wizard closed</string>
+    <string name="common_error_create_temp_dir">Error: Failed to create temp directory</string>
+    <string name="common_error_copy_assets">Error: Failed to copy assets to temp directory</string>
+    <string name="common_error_shell_command_failed">Error: Shell command failed - %1$s</string>
     <string name="settings_no_config_files_prompt">Use the configuration wizard to generate your first configuration file.</string>
     <string name="settings_select_config_files">Select configuration files</string>
     <string name="settings_config_suffix"> config</string>
@@ -278,9 +313,6 @@
     <string name="settings_restore_success_message">Module restored. Reboot the system to take effect.</string>
     <string name="settings_select_ttf_file">Select TTF font file</string>
     <string name="settings_no_file_manager_found">No file manager found</string>
-    <string name="common_error_create_temp_dir">Error: Failed to create temp directory</string>
-    <string name="common_error_copy_assets">Error: Failed to copy assets to temp directory</string>
-    <string name="common_error_shell_command_failed">Error: Shell command failed - %1$s</string>
     <string name="settings_preparing_font_file">Preparing font file…</string>
     <string name="settings_unknown_font_filename">unknown_font.ttf</string>
     <string name="settings_input_font_info_title">Enter font information</string>
@@ -292,6 +324,7 @@
     <string name="common_font_language">Simplified Chinese</string>
     <string name="common_font_author">Import By ZTool</string>
     <string name="common_font_preview_text">Quote\n\n   He who fights with monsters should be careful lest he thereby become a monster;\n   and if thou gaze long into an abyss, the abyss will also gaze into thee.\n\n           ---Friedrich Nietzsche</string>
+    <!-- Settings: One Vision policy search page feature resource values -->
     <string name="settings_zui_force_config_title">Floating window and split screen</string>
     <string name="settings_zui_force_config_summary">Requires a system reboot. This configuration has high priority and overrides all user and system configurations. Unchecked apps keep the system default behavior.</string>
     <string name="settings_zui_force_split_title">Force split-screen support</string>
@@ -321,6 +354,7 @@
     <string name="settings_skip_letterbox_display">• Skip letterbox display: </string>
     <string name="settings_show_surface_view_bg">• Show SurfaceView background: </string>
     <string name="settings_pause_primary_activity">• Pause primary activity: </string>
+    <!-- Settings: Floating window adaptation guide strings -->
     <string name="settings_cannot_get_app_foreground">Unable to get current app. Make sure the app is in the foreground.</string>
     <string name="settings_cannot_get_activity">Unable to get current Activity</string>
     <string name="settings_activity_added">Activity added: %s</string>
@@ -344,6 +378,7 @@
     <string name="settings_current_activity">Current Activity: %s</string>
     <string name="settings_app_name_label">App name: %s</string>
     <string name="settings_return_to_app">Please return to %s</string>
+    <!-- Settings: One Vision feature resource values -->
     <string name="settings_embedding_setting_title">Parallel Window</string>
     <string name="settings_embedding_setting_remove_blacklist">Remove blacklist restriction</string>
     <string name="settings_embedding_setting_remove_blacklist_summary">Remove blacklist restrictions and allow all apps to be embedded.</string>
@@ -360,11 +395,13 @@
     <string name="settings_rules_result">Search results</string>
     <string name="settings_search_rules">Search</string>
     <string name="settings_unable_to_find_application">Unable to find this app</string>
+    <!-- Settings: Floating window and split screen resource values -->
     <string name="settings_embedding_title">Floating window and split screen</string>
     <string name="settings_float_app_mandatory">Force floating window</string>
     <string name="settings_float_app_mandatory_summary">Force all apps to run in floating windows. Android 15 and below only.</string>
     <string name="settings_split_screen_mandatory_title">Force split screen</string>
     <string name="settings_split_screen_mandatory_summary">Force all apps to support split screen. Android 15 and below only. Requires a system reboot.</string>
+    <!-- Settings: Misc resource values -->
     <string name="settings_font_settings_title">Fonts</string>
     <string name="settings_import_font_title">Import font</string>
     <string name="settings_import_font_summary">Supports TTF format. Imports fonts into the system font manager.</string>
@@ -373,6 +410,9 @@
     <string name="settings_allow_adding_language">Allow adding language in PRC ROM</string>
     <string name="settings_native_permission_controller_enable_title">Native permission controller style</string>
     <string name="settings_native_permission_controller_enable_summary">Enable native-style permission controller. Effective on Android 14 and below.</string>
+    <!-- Package installer feature page resource values -->
+    <string name="package_installer_disable_scan_apk_title">Skip security scan</string>
+    <string name="package_installer_disable_scan_apk_summary">Skip security scan to save time.</string>
     <string name="package_installer_restart_fail_simple">Restart failed</string>
     <string name="common_sec_title_function">Security</string>
     <string name="package_installer_only_allow_title">Always grant app permissions</string>
@@ -386,12 +426,14 @@
     <string name="package_installer_enable_row_style_summary">Enable the native installer style.</string>
     <string name="package_installer_disable_delete_package_title">Do not delete APK</string>
     <string name="package_installer_disable_delete_package_summary">Block the installer from deleting the package after installation.</string>
+    <!-- System UI primary navigation resource values -->
     <string name="system_ui_status_bar_setting_title">Status bar settings</string>
     <string name="system_ui_status_bar_setting_summary">Customize status bar clock, notification icons, and more.</string>
     <string name="system_ui_lock_screen_setting_title">Lock screen settings</string>
     <string name="system_ui_lock_screen_summary">Random lock screen signature, charging power display, and more.</string>
     <string name="system_ui_control_center_title">Control center settings</string>
     <string name="system_ui_control_center_summary">Customize control center style.</string>
+    <!-- System UI primary misc resource values -->
     <string name="system_ui_lock_screen_aod_title">Always-on display</string>
     <string name="system_ui_lock_screen_aod_native_enable_title">Enable native AOD</string>
     <string name="system_ui_lock_screen_aod_native_enable_summary">Enable native AOD. This will increase power consumption and heat.</string>
@@ -413,18 +455,38 @@
     <string name="system_ui_misc_disable_guest_user_enable_title">Prevent automatic guest user creation</string>
     <string name="system_ui_misc_disable_guest_user_enable_summary">Only allow guest user creation when multi-user is enabled.</string>
     <string name="system_ui_misc_disable_biometric_error_vibration_title">Disable haptics of biometric auth failure</string>
+    <!-- System UI status bar clock page resource values -->
     <string name="system_ui_status_bar_clock_settings_title">Status bar clock settings</string>
     <string name="system_ui_status_bar_display_seconds_title">Show seconds</string>
     <string name="system_ui_status_bar_display_seconds_summary">Show seconds in the status bar clock.</string>
     <string name="system_ui_status_bar_custom_clock_title">Custom clock</string>
     <string name="system_ui_status_bar_custom_clock_summary">Customize the status bar clock display.</string>
     <string name="system_ui_status_bar_clock_format_hint">Enter clock format</string>
+    <!-- System UI status bar notification resource values -->
     <string name="system_ui_status_bar_notification_settings_title">Status bar notification settings</string>
     <string name="system_ui_status_bar_notification_icon_limit_title">Notification icon limit</string>
     <string name="system_ui_status_bar_notification_icon_limit_summary">Set the maximum number of notification icons shown in the status bar. System default is 4.</string>
     <string name="system_ui_status_bar_notification_icon_native_title">Use native notification icons</string>
     <string name="system_ui_status_bar_notification_icon_native_summary">No effect for unsupported apps.</string>
     <string name="system_ui_status_bar_title_suffix">\ - Status Bar Settings</string>
+    <string-array name="notify_num_size_options">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+        <item>Unlimited</item>
+    </string-array>
+    <!-- System UI status bar network speed display resource values -->
     <string name="system_ui_status_bar_network_title">Status bar network speed</string>
     <string name="system_ui_status_bar_network_size_title">Optimize network speed scale</string>
     <string name="system_ui_status_bar_network_size_summary">Make the numbers as large as possible and the unit as small as possible. May look odd when used with two-line network speed.</string>
@@ -438,9 +500,11 @@
     <string name="system_ui_status_bar_network_hide_threshold_title">Hide threshold</string>
     <string name="system_ui_status_bar_network_hide_both_title">Hide only when both directions are slow</string>
     <string name="system_ui_status_bar_network_hide_both_summary">When off, hides if the download speed is below the threshold; when on, hides only if both download and upload are below the threshold</string>
+    <!-- System UI status bar battery display resource values -->
     <string name="system_ui_status_bar_battery_title">Battery</string>
     <string name="system_ui_status_bar_syatus_battery_external_title">Force battery percentage outside icon</string>
     <string name="system_ui_status_bar_syatus_battery_external_summary">Show remaining battery percentage to the right of the battery icon. Disable the system percentage display first.</string>
+    <!-- System UI lock screen page resource values -->
     <string name="system_ui_lock_screen_widgets_title">Lockscreen widgets</string>
     <string name="system_ui_lock_screen_yi_yan_switch_title">Random lock screen signature</string>
     <string name="system_ui_lock_screen_yi_yan_summary">Show random text fetched from the network on the lock screen. Reboot to take effect.</string>
@@ -453,6 +517,7 @@
     <string name="system_ui_lock_screen_charge_watts_enable_title">Charging power display type</string>
     <string name="system_ui_lock_screen_charge_watts_summary">Show current negotiated protocol power or actual wattage on the lock screen and AOD while charging. Grant Root permission to "SystemUI" to use actual wattage.</string>
     <string name="system_ui_lock_screen_root_permission_required_message">To use actual charging power, grant Root permission to "SystemUI" in your Root manager.</string>
+    <!-- RealWatts sub-switches -->
     <string name="system_ui_lock_screen_realwatts_show_power">Show power</string>
     <string name="system_ui_lock_screen_realwatts_show_power_summary">Display charging power (W)</string>
     <string name="system_ui_lock_screen_realwatts_show_voltage">Show voltage</string>
@@ -472,6 +537,7 @@
     <string name="system_ui_lock_screen_clock_color_native_summary">ZUXOS 1.5 provides this feature natively; change it in Settings -> Wallpaper &amp; theme style -> Lock screen</string>
     <string name="system_ui_lock_screen_clock_color_picker_label">Clock color (AARRGGBB)</string>
     <string name="system_ui_lock_screen_api_address_hint">Enter API address</string>
+    <!-- Lock screen settings related strings -->
     <string name="system_ui_lock_screen_title_suffix">\ - Lock Screen Settings</string>
     <string name="system_ui_lock_screen_please_input_api_address">Enter API address</string>
     <string name="system_ui_lock_screen_testing_api_connection">Testing API connection…</string>
@@ -488,9 +554,15 @@
     <string name="system_ui_api_request_success">API request successful!\n\n</string>
     <string name="system_ui_regex_match_result_prefix">Regex match result: </string>
     <string name="system_ui_original_response_prefix">Original response: </string>
+    <string-array name="watt_options">
+        <item>Disabled</item>
+        <item>Negotiated power</item>
+        <item>Actual power</item>
+    </string-array>
     <string name="system_ui_watt_option_disabled">Disabled</string>
     <string name="system_ui_watt_option_handshake">Negotiated power</string>
     <string name="system_ui_common_watt_option_actual">Actual power</string>
+    <!-- System UI control center page resource values -->
     <string name="system_ui_control_center_controller_date">Control center date settings</string>
     <string name="system_ui_control_center_custom_date_setting_title">Custom date format</string>
     <string name="system_ui_control_center_custom_date_setting_summary">Customize the control center time display format.</string>
@@ -506,6 +578,7 @@
     <string name="system_ui_control_center_date_format_example">Time format examples</string>
     <string name="system_ui_control_center_date_format_sample">yyyy-MM-dd EEEE</string>
     <string name="system_ui_default_date_format">yyyy-MM-dd EEEE</string>
+    <!-- Shared resource values for status bar clock and control center clock -->
     <string name="system_ui_preview_default">Preview: enter a format to see the result</string>
     <string name="system_ui_preview_display">Preview: %s</string>
     <string name="system_ui_preview_invalid">Preview: invalid format</string>
@@ -552,6 +625,7 @@
     <string name="common_error_prefix">Error: </string>
     <string name="system_ui_notify_num_default">4</string>
     <string name="system_ui_notify_num_unlimited">Unlimited</string>
+    <!-- Launcher feature page resource values -->
     <string name="launcher_force_stop_title">Select apps to protect</string>
     <string name="launcher_protected_apps_summary">%d background apps protected</string>
     <string name="launcher_force_stop_success">App process restarted</string>
@@ -573,6 +647,7 @@
     <string name="launcher_app_icon_unmask_dynamic_summary">Also render clock and other dynamic icons in original style. Note: rebuilding them as static bitmaps freezes the clock hands</string>
     <string name="launcher_input_row_number_here">Rows</string>
     <string name="launcher_input_column_number_here">Columns</string>
+    <!-- System Framework feature page resource values -->
     <string name="system_framework_ai_input_quick_help_title">Trigger symbol help</string>
     <string name="system_framework_ai_input_quick_help_summary">Custom trigger symbols replace the official default full-width/half-width "&amp;&amp;". Separate multiple triggers with English commas.</string>
     <string name="system_framework_ai_input_quick_help_scope">Scope</string>
@@ -598,11 +673,11 @@
     <string name="system_framework_disable_flag_secure_title">Force allow screenshots</string>
     <string name="system_framework_disable_flag_secure_summary">Remove secure window flags to fix black screenshots in secure windows.</string>
     <string name="system_framework_disable_zui_applist_enable_title">Disable system "allow app list access"</string>
-    <string name="system_framework_disable_zui_applist_enable_summary">ZUI/ZUX app list management is incomplete. Consider using an app such as "Hide My Applist" instead.</string>
+    <string name="system_framework_disable_zui_applist_enable_summary">Hello UI/ZUX app list management is incomplete. Consider using an app such as "Hide My Applist" instead.</string>
     <string name="system_framework_restart_system_title">Restart system</string>
     <string name="system_framework_restart_system_message">This change affects the system framework. Restart the system to apply it.</string>
     <string name="system_framework_disable_hbm_thermal_limit_title">Disable brightness reduction at high temperature</string>
-    <!-- Framework · Package manager service -->
+    <!-- System Framework · Package Manager Service -->
     <string name="system_framework_pkgmgr_section_title">Package manager service</string>
     <string name="system_framework_pkgmgr_android16_note">Note: the Core Patch feature set is only adapted for Android 16. It may not work or cause unexpected behavior on other system versions.</string>
     <string name="system_framework_pkgmgr_allow_downgrade_title">Allow downgrade installs</string>
@@ -623,6 +698,7 @@
     <string name="system_framework_pkgmgr_allow_hidden_apis_summary">Allow hidden API access for system apps not signed with the platform key. Reboot required.</string>
     <string name="system_framework_pkgmgr_bypass_arsc_title">Bypass resources.arsc restriction</string>
     <string name="system_framework_pkgmgr_bypass_arsc_summary">Allow installing APKs whose resources.arsc does not meet the uncompressed and alignment requirements. Reboot required.</string>
+    <!-- SafeCenter feature page resource values -->
     <string name="safe_center_bypass_docements_ui">Allow selecting user root directory</string>
     <string name="safe_center_bypass_docements_ui_summary">Fixes "Cannot use this folder" and allows selection operations in restricted directories such as /storage/emulated/0/.</string>
     <string name="safe_center_default_allow_autorun_title">Background behavior management</string>
@@ -630,12 +706,17 @@
     <string name="safe_center_default_allow_autorun_enable_summary">Allow all apps to auto-start by default.</string>
     <string name="safe_center_app_process_restarted_message">App process restarted</string>
     <string name="common_restart_fail_prefix">Restart failed: </string>
+
+    <!-- Config selector page resource values -->
     <string name="settings_flash_added_config">Flash configuration</string>
     <string name="settings_restore_module">Restore module</string>
+    <!-- Font import page resource values -->
     <string name="settings_do_not_use_duplicated_font_name">Do not use a duplicate font name</string>
     <string name="settings_font_name">Font name</string>
     <string name="settings_font_description">Font description</string>
+    <!-- Fetch changelog page resource values -->
     <string name="system_update_update_log">Update log</string>
+    <!-- One Vision adaptation helper page resource values -->
     <string name="settings_add_current_activity">Add current activity</string>
     <string name="settings_no_activity_added">Added activities: none</string>
     <string name="settings_show_embedding_divider">Show embedding divider</string>
@@ -643,9 +724,11 @@
     <string name="settings_skip_multi_window_mode_title">Skip multi-window mode</string>
     <string name="settings_display_surface_view_background">Show SurfaceView background</string>
     <string name="settings_should_stop_main_activity">Should pause main activity</string>
+    <!-- Navigation bar resource values -->
     <string name="nav_home">Home</string>
     <string name="nav_features">Features</string>
     <string name="nav_settings">Settings</string>
+    <!-- App list selection dialog -->
     <string name="common_search_hint">Search…</string>
     <string name="page_settings_app_ui_theme_settings">App theme mode</string>
     <string name="page_settings_app_language_settings">App language</string>
@@ -681,33 +764,30 @@
     <string name="page_settings_amoled_black_summary">Use a pure black theme in dark mode.</string>
     <string name="page_settings_predictive_back_gesture_title">Predictive back gesture</string>
     <string name="page_settings_predictive_back_gesture_summary">Enable predictive back gesture animation.</string>
-    <string-array name="notify_num_size_options">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
-        <item>6</item>
-        <item>7</item>
-        <item>8</item>
-        <item>9</item>
-        <item>10</item>
-        <item>11</item>
-        <item>12</item>
-        <item>13</item>
-        <item>14</item>
-        <item>Unlimited</item>
-    </string-array>
-    <string-array name="watt_options">
-        <item>Disabled</item>
-        <item>Negotiated power</item>
-        <item>Actual power</item>
-    </string-array>
+    <string name="page_settings_enable_floating_bottom_bar_title">Floating Bottom Bar</string>
+    <string name="page_settings_enable_floating_bottom_bar_summary">iOS-style floting bottom bar</string>
+    <string name="page_settings_enable_floating_bottom_bar_blur_title">Liquid Glass Bottom Bar</string>
     <string name="page_settings_enable_floating_bottom_bar_blur_summary">Enable blurring and other advanced visual effects</string>
     <string name="settings_app_details_completion">Detailed APP information</string>
     <string name="settings_app_icon_unmask_title">Remove app icon mask</string>
     <string name="settings_app_icon_unmask_summary">Third-party icon pack icons in the app list are no longer re-cropped by the system shape</string>
     <string name="settings_app_details_completion_summary">Add packagename, SDK info, installation, update and install source info to APP detail page</string>
+    <string name="settings_about_device_info_title">About device info</string>
+    <string name="settings_about_device_info_master">Enable modification</string>
+    <string name="settings_about_device_info_master_summary">Just for fun.</string>
+    <string name="settings_about_device_info_model_title">Modify device model string</string>
+    <string name="settings_about_device_info_cpu_title">CPU info modification</string>
+    <string name="settings_about_device_info_ram_title">Modify RAM info</string>
+    <string name="settings_about_device_info_rom_title">Modify ROM info</string>
+    <string name="settings_about_device_info_software_title">Modify software version</string>
+    <string name="settings_about_device_info_header_title">Modify device illustration</string>
+    <string name="settings_about_device_info_model_label">Device model</string>
+    <string name="settings_about_device_info_cpu_label">CPU Info</string>
+    <string name="settings_about_device_info_ram_label">RAM info</string>
+    <string name="settings_about_device_info_rom_label">ROM info</string>
+    <string name="settings_about_device_info_software_label">Software version</string>
+    <string name="settings_about_device_info_header_action">Select an image</string>
+    <string name="settings_about_device_info_header_action_summary">Recommended image size is 500 × 300</string>
     <string name="settings_about_device_info_image_saved">Saved device illustration</string>
     <string name="settings_about_device_info_image_save_failed">Failed to save device illustration</string>
     <string name="system_framework_force_on_off_animation">Enable screen on/off animation</string>
@@ -715,8 +795,6 @@
     <string name="system_framework_screen_on_off_animation_duration">Set duration of on/off screen animator</string>
     <string name="safe_center_disable_all_virus_scan">Block virus alert</string>
     <string name="safe_center_disable_all_virus_scan_summary">Block virus alert in safe center, unable to handle launcher alert icon. Wipe app data of safe center after enabling this hook</string>
-    <string name="package_installer_disable_scan_apk_title">Skip security scan</string>
-    <string name="package_installer_disable_scan_apk_summary">Skip security scan to save time.</string>
     <string name="launcher_clean_search">Greenify global search</string>
     <string name="launcher_remove_search_recommend">Remove search recommendations</string>
     <string name="launcher_remove_hot_word_view">Remove hot word card</string>
@@ -726,8 +804,18 @@
     <string name="system_ui_control_center_tiles">Control Center Tiles</string>
     <string name="system_ui_control_center_custom_control_center_tile_radius">Customized control center tile radius</string>
     <string name="system_ui_control_center_custom_control_center_tile_radius_summary">Max 96 dp, min 0 dp, slight display incorrectness may happen,</string>
+    <string name="system_ui_control_center_expand_qs_panel_portrait_title">Expand Portrait Control Center</string>
+    <string name="system_ui_control_center_expand_qs_panel_portrait_summary">Expands portrait control center panel</string>
+    <string name="system_ui_control_center_panel_width_percent_title">Control center width</string>
+    <string name="system_ui_control_center_panel_width_percent_summary">Width ratio of control center, 0 for system default)</string>
     <string name="system_ui_control_center_tile_columns_title">Quick switch columns</string>
     <string name="system_ui_control_center_tile_columns_summary">Columns of quick switches, 0 for system default</string>
+    <string name="system_ui_control_center_customize_slider_style_title">Customize Slider Style</string>
+    <string name="system_ui_control_center_customize_slider_style_summary">Customize brightness and volume slider orientation</string>
+    <string name="system_ui_control_center_slider_style_direction_title">Slider Orientation</string>
+    <string name="system_ui_control_center_slider_style_horizontal">Horizontal</string>
+    <string name="system_ui_control_center_slider_style_vertical">Vertical</string>
+    <string name="system_ui_control_center_slider_style_forced_by_qs_panel">Forced to horizontal by \"Expand Portrait Control Center\"</string>
     <string name="system_ui_control_center_head_up_corner_radius">Head-up tile round corner radius</string>
     <string name="system_ui_control_center_normal_tile_corner_radius">Normal tile round corner radius</string>
     <string name="system_ui_control_center_custom_qs_color_title">Background color override</string>
@@ -752,47 +840,23 @@
     <string name="system_ui_control_center_notification_center_blur_strength_title">Blur strength</string>
     <string name="system_ui_control_center_notification_center_blur_strength_summary">Scales the system blur strength. Restart SystemUI to apply.</string>
     <string name="system_ui_control_center_percent_unit">%d%%</string>
-    <string name="settings_about_device_info_model_label">Device model</string>
-    <string name="settings_about_device_info_cpu_label">CPU Info</string>
-    <string name="settings_about_device_info_model_title">Modify device model string</string>
-    <string name="settings_about_device_info_cpu_title">CPU info modification</string>
-    <string name="settings_about_device_info_software_label">Software version</string>
-    <string name="settings_about_device_info_header_action">Select an image</string>
-    <string name="settings_about_device_info_header_action_summary">Recommended image size is 500 × 300</string>
-    <string name="settings_about_device_info_software_title">Modify software version</string>
-    <string name="settings_about_device_info_header_title">Modify device illustration</string>
-    <string name="settings_about_device_info_title">About device info</string>
-    <string name="settings_about_device_info_master">Enable modification</string>
-    <string name="settings_about_device_info_master_summary">Just for fun.</string>
-    <string name="settings_about_device_info_ram_label">RAM info</string>
-    <string name="settings_about_device_info_ram_title">Modify RAM info</string>
-    <string name="settings_about_device_info_rom_label">ROM info</string>
-    <string name="settings_about_device_info_rom_title">Modify ROM info</string>
     <string name="system_framework_no_password_per_24h">No password per 24h</string>
     <string name="system_framework_no_password_per_24h_summary">Won\'t work when interval between password use is longer than 1 month</string>
     <string name="system_framework_allow_untrusted_touch">Allow untrusted touch</string>
+    <string name="page_settings_auto_check_update_title">Check Updates Automatically</string>
+    <string name="common_splash_logo_description" translatable="false">ZTool Logo</string>
+    <string name="common_splash_slogan" translatable="false">\"Make ZUXOS Great, Not \'Again\'.\"</string>
     <string name="page_firstrun_splash_welcome_text">Welcome to ZTool</string>
     <string name="page_firstrun_splash_tap_hint">Tap anywhere to start setup</string>
-    <string name="page_home_non_zuxos_warn">Non-ZUXOS/ZUI device detected, hooks may not function normally!</string>
+    <string name="page_home_non_zuxos_warn">Non-ZUXOS/Hello UI device detected, hooks may not function normally!</string>
     <string name="page_settings_display_entry_in_settings">Display module entrance in settings</string>
     <string name="page_settings_display_entry_in_settings_summary">A restart of settings APP is required</string>
     <string name="system_ui_control_center_show_brightness_slider_percentage">Show brightness slider percentage</string>
     <string name="system_ui_control_center_show_volume_slider_percentage">Show volume slider percentage</string>
-    <string name="page_settings_about_developers_title">Developers</string>
-    <string name="page_settings_about_acknowledgements_title">Credits</string>
-    <string name="page_settings_about_app_update_latest_summary">You are using the latest version</string>
-    <string name="page_settings_about_view_source_title">Review source code on our GitHub</string>
-    <string name="page_settings_about_license_title">License Information</string>
-    <string name="page_settings_about_license_summary">This project is released under Apache License 2.0</string>
-    <string name="page_settings_about_open_source_title">Open-Source Information</string>
-    <string name="page_settings_about_qimian233_summary">Initiator, Hooks and User Interface</string>
-    <string name="page_settings_about_wasd_destroy_summary">Hooks and User Interface</string>
-    <string name="page_settings_about_uuuddddl">Hooks</string>
-    <string name="page_settings_about_unfuckzui_summary">Fearure references and inspirations</string>
+    <string name="ztool_ram_unavailable" translatable="false" tools:ignore="UnusedResources">-- | --</string>
     <string name="ztool_ram_formatter" tools:ignore="UnusedResources">%1$s Used | %2$s</string>
     <string name="launcher_beautify_ram_info">Beautify total RAM info</string>
     <string name="launcher_beautify_ram_info_summary">Replace total RAM value with guessed total physical RAM + RAM expansion value</string>
-    <string name="mobile_desktop_app_name">Readyfor</string>
     <string name="mobile_desktop_skip_nearby_exposure_warn">Skip exposure warnings when enabling nearby share</string>
     <string name="mobile_desktop_skip_nearby_exposure_warn_summary">Allow switching state of Lenovo Share tile with a click</string>
     <string name="launcher_disable_dock_bar_title">Disable dock bar</string>
@@ -804,31 +868,11 @@
     <string name="common_app_search_page_selected_string">%d APP(s) selected</string>
     <string name="page_settings_log_settings_title">Log Settings</string>
     <string name="system_ui_status_bar_notification_icon_number_to_show">Show %s</string>
-    <string name="page_settings_enable_floating_bottom_bar_summary">iOS-style floting bottom bar</string>
-    <string name="page_settings_enable_floating_bottom_bar_blur_title">Liquid Glass Bottom Bar</string>
-    <string name="page_settings_enable_floating_bottom_bar_title">Floating Bottom Bar</string>
     <string name="page_features_scope_request_dialog_message">The application will send a request to the framework. Please click \"allow\" in the notification sent from your framework.</string>
     <string name="page_features_scope_request_fail_message">Failed to add APP to scope: %s</string>
     <string name="page_features_not_in_scope_tip">Some component not in the scope. Click to fix.</string>
-    <string name="page_settings_about_app_update_section_title">APP Update</string>
-    <string name="page_settings_about_app_update_title">Check APP Update</string>
-    <string name="page_settings_about_app_update_placeholder_summary">Click to check ZTool\'s update</string>
-    <string name="page_settings_auto_check_update_title">Check Updates Automatically</string>
-    <string name="page_settings_advanced_info_title">System Info</string>
-    <string name="page_settings_advanced_api_version">libxposed API version</string>
-    <string name="page_settings_advanced_open_firstrun_title">Open first-run wizard</string>
-    <string name="page_settings_advanced_open_firstrun_summary">Re-enter the first-run onboarding (OOBE) for development and testing</string>
-    <string name="launcher_launcher_no_label_mode_title">Launcher No-label Mode</string>
-    <string name="launcher_launcher_drawer_no_label_mode_title">Drawer No-label Mode</string>
-    <string name="launcher_launcher_hide_blue_point_title">Hide app update blue dot</string>
-    <string name="page_settings_advanced_hot_reload_starting">Requesting hot reload…</string>
-    <string name="page_settings_advanced_hot_reload_confirm_title">Trigger a Hot Reload?</string>
-    <string name="page_settings_advanced_hot_reload_confirm_message">Send hot reload request to %d running APP? \\n\\n Hot reload allows (un)installing hooks without restarting target APPs. This operation cannot be undone.</string>
-    <string name="page_settings_advanced_hot_reload_result">Success %1$d, failed %2$d, not supported %3$d, progress exit %4$d</string>
-    <string name="page_settings_advanced_hot_reload_detail_title">Hot Reload Details</string>
-    <string name="page_settings_advanced_hot_reload_unsupported">Hot reload requires libxposed API 102 or above</string>
-    <string name="page_settings_advanced_hot_reload_no_targets">No scoped process is running. Please install hook first.</string>
-    <string name="page_settings_advanced_hot_reload_in_progress">Hot reload in progress…</string>
+
+    <!-- Advanced settings page resource values -->
     <string name="page_settings_advanced_title">Advanced Options</string>
     <string name="page_settings_advanced_reset_title">Reset all modified persistent values</string>
     <string name="page_settings_advanced_reset_summary">Reset persistent values modified by this app\'s hooks, such as app auto-start and device properties</string>
@@ -843,6 +887,21 @@
     <string name="page_settings_advanced_reset_item_mistouch">Game anti-mistouch state</string>
     <string name="page_settings_advanced_hot_reload_title">Hot reload all modules</string>
     <string name="page_settings_advanced_hot_reload_summary">Will request hot reload for %d running processes</string>
+    <string name="page_settings_advanced_hot_reload_unsupported">Hot reload requires libxposed API 102 or above</string>
+    <string name="page_settings_advanced_hot_reload_no_targets">No scoped process is running. Please install hook first.</string>
+    <string name="page_settings_advanced_hot_reload_in_progress">Hot reload in progress…</string>
+    <string name="page_settings_advanced_hot_reload_starting">Requesting hot reload…</string>
+    <string name="page_settings_advanced_hot_reload_confirm_title">Trigger a Hot Reload?</string>
+    <string name="page_settings_advanced_hot_reload_confirm_message">Send hot reload request to %d running APP? \\n\\n Hot reload allows (un)installing hooks without restarting target APPs. This operation cannot be undone.</string>
+    <string name="page_settings_advanced_hot_reload_result">Success %1$d, failed %2$d, not supported %3$d, progress exit %4$d</string>
+    <string name="page_settings_advanced_hot_reload_detail_title">Hot Reload Details</string>
+    <string name="page_settings_advanced_info_title">System Info</string>
+    <string name="page_settings_advanced_api_version">libxposed API version</string>
+    <string name="page_settings_advanced_open_firstrun_title">Open first-run wizard</string>
+    <string name="page_settings_advanced_open_firstrun_summary">Re-enter the first-run onboarding (OOBE) for development and testing</string>
+    <string name="launcher_launcher_no_label_mode_title">Launcher No-label Mode</string>
+    <string name="launcher_launcher_drawer_no_label_mode_title">Drawer No-label Mode</string>
+    <string name="launcher_launcher_hide_blue_point_title">Hide app update blue dot</string>
     <string name="mobile_desktop_disable_nearby_share_auto_shutdown_title">Prevent nearby share auto shutdown</string>
     <string name="system_update_disable_ota_auto_install_title">Prevent auto OTA installation</string>
     <string name="system_update_block_ota_install_dialog_title">Block idle-time OTA installation dialog</string>
@@ -850,20 +909,10 @@
     <string name="system_update_disable_ota_notification_and_red_dot_summary">Open OTA page again to remove red dot</string>
     <string name="launcher_cloud_folder_auto_dismiss_title">Auto reject user agreement of app recommendation folder</string>
     <string name="system_framework_allow_relative_app_launch_title">Always allow relative app launching</string>
-    <string name="system_ui_control_center_expand_qs_panel_portrait_title">Expand Portrait Control Center</string>
-    <string name="system_ui_control_center_expand_qs_panel_portrait_summary">Expands portrait control center panel</string>
-    <string name="system_ui_control_center_panel_width_percent_title">Control center width</string>
-    <string name="system_ui_control_center_panel_width_percent_summary">Width ratio of control center, 0 for system default)</string>
-    <string name="system_ui_control_center_customize_slider_style_title">Customize Slider Style</string>
-    <string name="system_ui_control_center_customize_slider_style_summary">Customize brightness and volume slider orientation</string>
-    <string name="system_ui_control_center_slider_style_direction_title">Slider Orientation</string>
-    <string name="system_ui_control_center_slider_style_horizontal">Horizontal</string>
-    <string name="system_ui_control_center_slider_style_vertical">Vertical</string>
-    <string name="system_ui_control_center_slider_style_forced_by_qs_panel">Forced to horizontal by \"Expand Portrait Control Center\"</string>
     <string name="system_framework_force_relative_app_freeform_title">Open relative app in freeform</string>
     <string name="launcher_disable_recent_app_display">Hide recent apps in dock bar</string>
 
-    <!--Desktop live wallpaper resources-->
+    <!-- Desktop live wallpaper page resource values -->
     <string name="system_ui_animation_desktop_live_wallpaper_title">Desktop Live Wallpaper</string>
     <string name="system_ui_animation_desktop_live_wallpaper_rotation_warning">Rapid screen rotation may prevent the live wallpaper from rendering; it will temporarily fall back to the static wallpaper.</string>
     <string name="system_ui_animation_desktop_live_wallpaper_select_portrait">Select Portrait Wallpaper Video</string>
@@ -875,22 +924,24 @@
     <string name="system_ui_animation_desktop_live_wallpaper_scale_mode_title">Video Display Mode</string>
     <string name="system_ui_animation_desktop_live_wallpaper_scale_mode_fit">Keep Aspect Ratio (Fit)</string>
     <string name="system_ui_animation_desktop_live_wallpaper_scale_mode_cover">Fill Screen (Crop)</string>
+    <string name="page_settings_credits_zuxos_plus" translatable="false">ZUXOS+</string>
+    <string name="page_settings_credits_unfuck_zui" translatable="false">UnfuckZUI</string>
     <string name="page_settings_credits_github_acceleration">GitHub Mirror</string>
     <string name="page_settings_credits_github_acceleration_site">https://gh.absinthe.life/ delivers fast download and update check service for PRC region</string>
     <string name="page_settings_credits_hitokoto_support">Hitokoto Support</string>
     <string name="page_settings_credits_hitokoto_support_site">https://docs.xygeng.cn/ provides random words shown in home page</string>
-    <!-- Desktop multi-select batch uninstall -->
+    <!-- Launcher multi-select batch uninstall -->
     <string name="launcher_launcher_batch_uninstall">Batch uninstall from desktop multi-select</string>
     <string name="page_uninstall_title">Batch Uninstall</string>
     <string name="page_uninstall_auth_failed">Request failed the security check, uninstall cancelled</string>
     <string name="page_uninstall_root_unavailable">Root access unavailable. Please grant ZTool root access in the superuser manager first.</string>
     <string name="page_uninstall_empty">No packages received</string>
     <string name="page_uninstall_result">Batch uninstall finished: %1$d succeeded, %2$d failed</string>
-    <!-- Read by the hook side (BatchUninstall confirm dialog) -->
+    <!-- Read by Hook side (BatchUninstall confirm dialog); loaded by name via getIdentifier, do not rename or delete -->
     <string name="ztool_batch_uninstall_dialog_title" tools:ignore="UnusedResources">Batch Uninstall</string>
     <string name="ztool_batch_uninstall_dialog_message" tools:ignore="UnusedResources">The following %1$d app(s) will be uninstalled:\n\n%2$s</string>
     <string name="ztool_batch_uninstall_dispatch_failed" tools:ignore="UnusedResources">Failed to open ZTool for uninstall</string>
-    <!-- Read by the hook side (BatchUninstall) -->
+    <!-- Read by Hook side (BatchUninstall); loaded by name via getIdentifier, do not rename or delete -->
     <string name="ztool_batch_uninstall_button" tools:ignore="UnusedResources">Uninstall</string>
     <string name="tile_media_output_label">Media output</string>
     <string name="system_ui_media_output_dialog_center_title">Center media output dialog</string>

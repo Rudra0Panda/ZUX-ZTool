@@ -13,19 +13,17 @@ interface AgreementReadGate {
 }
 
 class ScrollToBottomAgreementGate : AgreementReadGate {
-    override var satisfied by mutableStateOf(false)
+    override var satisfied by mutableStateOf(true)
         private set
 
     override val description: String
-        get() = "Scroll to the bottom to unlock agreement acceptance"
+        get() = "Agreement acceptance unlocked"
 
     override fun onScrollChanged(canScrollForward: Boolean) {
-        if (!canScrollForward) {
-            satisfied = true
-        }
+        satisfied = true
     }
 
     override fun reset() {
-        satisfied = false
+        satisfied = true
     }
 }

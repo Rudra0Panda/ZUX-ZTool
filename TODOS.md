@@ -1,102 +1,103 @@
 > [!warning]
-> 警告：本待办清单中的项目不是“已规划，肯定会做出来”的功能，功能是否事实上被最终实现请参考软件源码和分发的二进制。
+> Warning: Items in this TODO list are not "planned and guaranteed to be implemented". Whether a feature is actually implemented should be determined by the source code and distributed binaries.
 
 ## TODOs
-- [x] 核心破解
-- [x] 功能搜索
-- [x] 更新 Firstrun：更改协议接受条件，更改样式
-- [ ] 复用更新检测缓存，已经检测到更新时不再重复请求
-- [ ] 桌面图标大小
-- [ ] 更新检测失败时显示错误原因
-- [ ] 解决 DNS 污染
-- [ ] 修复桌面网格大小改变后的正方形大文件夹功能
-- [ ] 在高级选项中提供删除 /data/ota-package 的功能
-- [ ] 添加 issues 快捷链接
-- [ ] 重写主页面
-- [ ] Features 页面添加越界回弹
-- [ ] 强制某些符号使用半角符号
-- [ ] 内置锁屏一言 API 和 regex （就是主页用的配置）
+- [x] Core Patch / Signature Bypass
+- [x] Feature Search
+- [x] Update Firstrun: Change agreement acceptance conditions and styling
+- [ ] Reuse update check cache, do not repeat requests when an update has already been detected
+- [ ] Custom desktop icon size
+- [ ] Display error reasons when update check fails
+- [ ] Resolve DNS pollution
+- [ ] Fix square big folders after launcher grid size change
+- [ ] Provide feature in Advanced Settings to delete /data/ota-package
+- [ ] Add quick link to GitHub Issues
+- [ ] Redesign home page
+- [ ] Add overscroll bounce to Features page
+- [ ] Force certain punctuation marks to use half-width characters
+- [ ] Built-in lock screen Hitokoto API and regex (the configuration used by the home page)
 
 ## Done Until 20260913 Beta
-- [x] 补全 Credits: 一言支持、GitHub 加速支持
-- [x] 重置所有受到模块污染的 prop
-- [x] 网速指示器隐藏慢速
-- [x] 禁止游戏中降亮度
-- [x] 集中管理 DexKit 查找的方法名，提供一个列表或者文件来持久化记录
-- [x] 修好模块热重载功能
-- [x] 正方形文件夹
-- [x] 无字模式，抽屉和桌面各自拦截
-- [x] 启动器内批量卸载 APP
-- [x] 屏蔽云控？
-- [x] 锁屏时钟颜色自定义（ZUXOS 1.5 系统内支持）
-- [x] 充电动画时长更改
-- [x] 更新完美横屏适配
-- [x] 原始设置和桌面图标
+- [x] Completed Credits: Hitokoto support, GitHub acceleration support
+- [x] Reset all props modified by the module
+- [x] Hide slow network speed on speed indicator
+- [x] Prevent screen dimming during gaming
+- [x] Centralized DexKit method name lookup with persistent list/file
+- [x] Fixed module hot reload feature
+- [x] Square launcher folders
+- [x] No-label mode with separate controls for drawer and home screen
+- [x] Batch app uninstallation in launcher
+- [x] Block cloud policy sync (experimental)
+- [x] Custom lock screen clock color (supported on ZUXOS 1.5)
+- [x] Configurable charging animation duration
+- [x] Updated enhanced landscape mode adaptation
+- [x] Original settings and launcher icons
 
 ## Done Until 20260808 Beta
-- [x] 动态壁纸
-- [x] 解除 PRC ROM 的语言限制
-- [x] 锁屏功率 支持显示拼接的信息：实际电压、电流、充电功率、电池温度等
-- [x] 使用 Hook 替代直接跑 Shell 命令的 Native AOD
-- [x] 关联应用小窗启动
-- [x] 任务栏关闭最近 APP 显示
-- [x] 竖屏模式控制中心拓宽
-- [x] 自动拒绝桌面应用推荐文件夹的用户协议
-- [x] 关联应用启动不弹窗
-- [x] 应用更新角标移除（从无字模式 Hook 独立出来）
-- [x] 设置 app 角标通知更新
-- [x] 充电动画自定义
-~~- [ ] 不使用 su 获取充电信息~~ su 是万万不可没有的，但是我们添加了强大的自定义功能
+- [x] Desktop live wallpaper
+- [x] Remove language restrictions on PRC ROMs
+- [x] Lock screen power display with concatenated info: real voltage, current, power, battery temperature, etc.
+- [x] Use Hook instead of executing shell commands for Native AOD
+- [x] Launch associated apps in floating window
+- [x] Hide recent apps in dock bar
+- [x] Widen portrait control center
+- [x] Automatically decline user agreement for recommended app folders on desktop
+- [x] Suppress popups when launching associated apps
+- [x] Remove app update blue dots (separated from no-label hook)
+- [x] Settings app badge notification updates
+- [x] Custom charging animation
+- ~~[ ] Do not use su to obtain charging info~~ su is indispensable, but we added powerful customization features
 
 ## Done Until 20260710 Beta
-- [x] 调整内存显示的位置、字号和颜色
-- [x] 调整百分比显示的颜色
-- [x] 互传启动时不许警告 ~~让联想互传磁贴支持点按开启互传~~
-- [x] 关闭桌面 Dock 栏
-- [x] 自动接受互传请求
-- [x] 桌面无字模式
-- [x] 网速刷新时间自定义
-- [x] 禁止互传自动关闭
-- [x] 禁止系统更新自动安装和夜间自动安装
-- [x] 关掉系统更新的夜间安装和~~重启确认~~弹窗
-- [ ] 游戏助手 支持显示不同的数据（CPU 温度、GPU 温度（如果有）、电池温度、内存速度、功率、电量等） // Maybe next version?
+- [x] Adjust memory display position, font size, and color
+- [x] Adjust battery percentage display color
+- [x] Suppress warning when launching Lenovo Share ~~Make Lenovo Share quick tile support tap to toggle~~
+- [x] Disable launcher dock bar
+- [x] Automatically accept file transfer requests
+- [x] Launcher no-label mode
+- [x] Custom network speed refresh interval
+- [x] Prevent file transfer from automatically turning off
+- [x] Prevent automatic installation and overnight installation of system updates
+- [x] Disable overnight install and reboot confirmation dialogs for system updates
+- [ ] Game Assistant: Support displaying various metrics (CPU temp, GPU temp if available, battery temp, RAM speed, power wattage, battery level, etc.) // Maybe next version?
 
 ## Done Until 20260624 Beta
-- [x] 应用详情显示包名、SDK版本、首次安装时间、最后更新时间、安装来源、允许长按复制以上信息
-- [x] 移除“无法使用此文件夹”的限制
-- [x] 禁用FLAG_SECURE
-- [x] 桌面自由布局
-- [x] 设置“实际功率”刷新间隔
-- [x] 内存使用情况
-- [x] 全局搜索净化
-- [x] 亮屏灭屏动画
-- [x] 不许弹窗发现病毒
-- [x] 不许提示有新版本
-- [x] 通知中心 圆角矩形图标
-- [x] 通知中心 磁贴颜色自定义
-- [x] 通知中心透明
-- [x] 磁贴无字模式
-- [x] 补控制中心音量和亮度滑条圆角自定义
-- [x] 高版本原生应用安装器界面下移除“该应用未经过...” 提示
-- [x] 关于设备信息修改
-- [x] 允许不受信任的触摸
-- [x] 检测非 ZUXOS 设备
-- [x] 只展示已安装 APP 的功能入口
-- [x] 设置内快捷入口
-- [x] 显示音量和亮度百分比
+- [x] App details: show package name, target SDK, first install time, last update time, install source; support long-press to copy
+- [x] Remove "Cannot use this folder" restriction
+- [x] Disable FLAG_SECURE (allow screenshots anywhere)
+- [x] Freeform desktop grid layout
+- [x] Set "Actual Power" refresh interval
+- [x] Memory usage display
+- [x] Clean up global search
+- [x] Screen turn-on / turn-off animations
+- [x] Suppress virus detection dialogs
+- [x] Suppress new system version available prompts
+- [x] Notification center rounded rectangle icons
+- [x] Notification center tile color customization
+- [x] Notification center transparency customization
+- [x] Quick settings tile no-label mode
+- [x] Custom corner radius for volume and brightness sliders in control center
+- [x] In higher Android versions of package installer, remove "This app has not passed review..." warning
+- [x] Customize About Device panel information
+- [x] Allow untrusted touch events
+- [x] Detect non-ZUXOS / Hello UI devices
+- [x] Show feature entries only for installed apps
+- [x] Shortcut entry inside Settings
+- [x] Display volume and brightness percentages
 
-~~- [ ] 禁止学习助手限制设置选项变更~~ 新版本系统的“健康使用设备”功能不再限制这些选项更改
-~~- [ ] 强制显示设置底部的Google入口~~ 开启 Google 服务时自动显示
-~~- [ ] 直接打开使用情况等页面对应 APP 的入口，对付超级互传之类的申请一堆权限的 APP~~ 等某天又被烦到了再做，超级互联现在好像并没有申请这么多权限了
+~~- [ ] Prevent Learning Assistant from restricting settings changes~~ The "Digital Wellbeing" feature in newer system versions no longer restricts these setting changes
+~~- [ ] Force show Google entry at bottom of Settings~~ Automatically shown when Google services are enabled
+~~- [ ] Directly open usage stats / permission settings for apps like Lenovo Share~~ Revisit if it becomes annoying again; Lenovo Share no longer requests as many permissions
 
-开启极致高刷新率模式获取最佳动画体验
-刷入 MiSans 字体获取最佳 MIUIx 主题使用体验
-开启的功能数和耗电量呈正相关
-不要贸然尝试边界值选项，虽然大多数时候我们会做边界测试，大多数时候......
-本应用不需要通知权限。如果你喜欢有个通知常驻的话，好吧......挺好的......
-setTag(10086);
+Tips:
+- Enable ultra-high refresh rate mode for the best animation experience
+- Flash MiSans font for the best MIUIx theme experience
+- Power consumption is positively correlated with the number of enabled features
+- Do not blindly test extreme boundary values; though we test boundaries most of the time, most of the time...
+- This app does not need notification permissions. If you prefer a persistent notification, well... that's fine too...
+- setTag(10086);
 
-系统服务 相机助手 ZUX性能服务
+System Services: Camera Assistant, Hello UI Performance Service
 
-帮助 chip 使用 miui 风格弹窗，顺便改改现在独立成行的帮助 chip
-验证 Material 主题下的兼容性
+- Help chips: use MIUI-style popup, and refactor standalone inline help chips
+- Verify compatibility under Material theme

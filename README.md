@@ -1,164 +1,158 @@
-# <p align="center">ZTool - 更适合 ZUXOS 体质的 LSPosed 自定义模块</p>
+# <p align="center">ZTool - LSPosed Customization Module for ZUXOS & Hello UI</p>
 
 <div align="center">
   <img src="/app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp" alt="ZTool Logo">
 
   <a href="https://github.com/qwqawa64/ZUX-ZTool"><img alt="Static Badge" src="https://img.shields.io/badge/GitHub-ZUX--ZTool-%23ADD8E6?style=for-the-badge"></a>
-  <a href="https://github.com/LSPosed/LSPosed"><img alt="Static Badge" src="https://img.shields.io/badge/Framework-LSPosed-%23F48FB1?style=for-the-badge&color=%23F48FB1">
-  <a href="https://www.zuxos.com/"><img alt="Static Badge" src="https://img.shields.io/badge/Target-ZUXOS%2FZUI-%23E2231A?style=for-the-badge"></a>
+  <a href="https://github.com/LSPosed/LSPosed"><img alt="Static Badge" src="https://img.shields.io/badge/Framework-LSPosed-%23F48FB1?style=for-the-badge&color=%23F48FB1"></a>
+  <a href="https://www.zuxos.com/"><img alt="Static Badge" src="https://img.shields.io/badge/Target-ZUXOS%2FHello%20UI-%23E2231A?style=for-the-badge"></a>
   <a href="https://github.com/qwqawa64/ZUX-ZTool/commits/master/"><img alt="GitHub commits since latest release" src="https://img.shields.io/github/commits-since/qwqawa64/ZUX-ZTool/latest?style=for-the-badge"></a>
-</a>
 </div>
 
 > "Make ZUXOS Great, Not 'Again'."
 
 > [!tip]
-> 当前文档基于版本 `20260913` 编写。
+> This documentation is written based on version `20260913`.
 > 
-> 部分功能可能也适用于 ZUI ，关于 ZUI 上模块功能的可用性我们无法担保。
+> Some features also apply to Hello UI / ZUI. We cannot guarantee feature availability across all device configurations and firmware versions.
 
-## 概述
+## Overview
 
-ZTool 是一个针对 ZUXOS 的 LSPosed 功能增强模块。
+ZTool is an LSPosed enhancement module tailored for devices running ZUXOS and Hello UI.
 
-### 游戏优化功能
-- CPU 频率修正: 修复游戏服务的 CPU 时钟读取逻辑
-- 设备型号伪装: 启用拯救者游戏模式
-- 音频控制: 禁用游戏模式音频优化，降低延迟
-- 温度管理: 修正 SoC 温度读取
-- 防误触管理: 允许自动开启防误触
+### Game Optimization Features
+- CPU Frequency Fix: Fixes CPU clock reading logic in game services
+- Device Model Disguise: Enables Legion gaming mode
+- Audio Control: Disables game mode audio post-processing to reduce audio latency
+- Temperature Management: Corrects SoC temperature readings
+- Mistouch Prevention: Allows automatically enabling mistouch protection
 
-### 界面定制功能
-- 状态栏时钟: 支持格式和样式自定义
-- 状态栏网速: 使用双排网速（同时显示上下行速率）或者使用更易读的形式，支持控制刷新间隔，支持隐藏慢速
-- 状态栏电量: 使用位于电池图标外部的电量百分比
-- AOD 支持: 强行启用原生 Android 的 AOD 或联想为 OLED 设备设计的息屏显示
-- 锁屏一言: 使用自己的一言 API 为锁屏签名添加抽卡的乐趣（笑）
-- 充电信息显示: 在锁屏页面显示实际充电瓦数或握手协议瓦数
-- 通知图标自定义: 允许限制状态栏通知图标最大数量；允许使用原生通知图标
-- 控制中心自定义: 允许修改控制中心日期显示格式
-- 字体自定义: 允许导入和使用自定义字体
-- 充电动画: 允许关闭充电动画，或者为非Y700系列启用Y700充电动画
-- 控制中心磁贴无字模式、颜色自定义、圆角半径自定义
-- 控制中心模糊强度自定义
-- 音量/亮度条百分比显示
-- 自定义关于设备面板中的一些信息
-- 亮灭屏过渡动画
-- 在应用信息字段显示更多内容，例如 Target SDK ，并支持长按复制到剪贴板
-- 动态壁纸
-- 自定义充电动画、充电动画时长更改
-- 优化竖屏控制中心
+### Interface Customization
+- Status Bar Clock: Format and style customization
+- Status Bar Network Speed: Dual-row display (upload/download simultaneously) or readable format, custom refresh interval, hide slow speed
+- Status Bar Battery: Battery percentage positioned outside the battery icon
+- AOD Support: Force enable native Android AOD or Lenovo OLED always-on display
+- Lock Screen Hitokoto: Custom Hitokoto API signatures on lock screen
+- Charging Information: Displays real charging wattage or negotiated protocol wattage on the lock screen
+- Notification Icons: Limit maximum status bar notification icons; use native notification icons
+- Control Center Customization: Custom date display format in control center
+- Font Customization: Import and apply custom fonts
+- Charging Animation: Option to disable charging animations, or enable Legion Y700 animations on non-Y700 devices
+- Quick Settings Tiles: No-label mode, custom tile colors, custom corner radius
+- Control Center Blur: Custom blur intensity
+- Volume / Brightness Sliders: Display exact percentage values
+- Device Info Customization: Customize properties in the About Device panel
+- Screen Transition Animation: Custom screen turn-on and turn-off animations
+- App Info Details: Display target SDK and other package metadata with long-press copy
+- Live Wallpaper: Support desktop live video wallpapers
+- Charging Animation Duration: Configure display duration
+- Portrait Control Center: Expanded control center layout in portrait orientation
 
-### 系统更新功能
-- 开启本地安装
-- 获取增量更新包信息
-- 获取线刷包下载链接
-- 伪装 OTA 版本
-- 关闭系统更新可用时的小红点提示
+### System Updates
+- Enable local package installation
+- Fetch incremental OTA update details
+- Fetch fastboot / recovery firmware download links
+- Disguise OTA system version
+- Disable red dot notification badges when system updates are available
 
-### 启动器功能
-- 解锁 Dock 栏固定应用数上限
-- 允许关闭 Dock 栏
-- 关闭任务栏的最近 APP 显示
-- 自动拒绝桌面应用推荐文件夹的用户协议，以防被推销莫名其妙的应用
-- 应用更新蓝点移除
-- 禁止桌面角标提示系统版本更新可用
-- 桌面和抽屉无字模式
-- 调整划卡杀后台行为
-- 最近任务显示内存信息
-- 净化全局搜索
-- 允许自定义桌面网格大小
-- 正方形文件夹
-- 启动器内批量卸载 APP
-- 原始设置和桌面图标
+### Launcher Features
+- Unlock dock bar pinned application limits
+- Allow completely disabling the dock bar
+- Hide recent applications in the dock / taskbar
+- Automatically decline user agreements for recommended app folders
+- Remove app update blue dot badges
+- Suppress desktop notification badges for system updates
+- No-label mode for home screen and app drawer
+- Customize card swipe background killing behavior
+- Display available RAM in recent tasks overview
+- Clean up global search interface
+- Custom home screen grid size
+- Square launcher folders
+- Batch uninstall applications directly from launcher
+- Restore original settings and launcher icons
 
-### 一视界/一视窗功能
+### One Vision / Multi-Window Features
+- Landscape Mode Adaptation: Force landscape display for supported apps
+- Blacklist Management: Clear app restrictions
+- Dynamic Configuration: Manually configure parallel window parameters
+- Remove small window and split-screen whitelist limits
+- Split-Screen Support: Bypass app split-screen restrictions
+- Floating Windows: Enhanced multi-window management
 
-- 横屏适配: 支持强制横屏显示
-- 黑名单管理: 清除应用限制名单
-- 动态配置: 可手动适配平行视窗界面参数
-- 解除小窗 / 分屏白名单限制
-- 分屏支持: 绕过应用分屏限制
-- 悬浮窗口: 增强多窗口管理
+### Lenovo Share (Mobile Desktop / Ready For)
+- Remove file transfer startup warning
+- Prevent file transfer from automatically disconnecting
+- Automatically accept incoming file transfer requests
 
-### 超级互联功能
+### Package Installer
+- Remove recommended application promotions and ads
+- Skip warning confirmation screens
+- Allow using native Android package installer
+- Automatically grant requested permissions upon app installation
 
-- 移除互传开启警告
-- 禁止互传自动关闭
-- 自动接受互传请求
+### Miscellaneous
+- Dolby Audio: Allow turning off Dolby Atmos when using built-in speakers
+- App Permission Manager: Option to use native Android permission manager
+- AI Input Integration: Custom AI global input wake word
+- Cloud Policy Blocking (Experimental)
+- System Framework Restrictions Bypass:
+  - Force allow screenshots (bypass FLAG_SECURE)
+  - Bypass "Cannot use this folder" storage access restrictions
+  - Open associated apps in floating window
+  - Suppress dialog prompts when launching associated apps
+  - Prevent brightness throttling during games
+- Remove language restrictions on Chinese (PRC) ROMs
 
-### 安装器功能
+> More features are actively being added...
 
-- 移除推荐广告
-- 跳过警告页
-- 允许使用原生安装器
-- 总是在 APP 安装时授予权限
+## Requirements
 
-### 杂项
-
-- 杜比音效: 允许在外放时关闭杜比音效
-- APP 权限管理器: 允许使用原生 APP 权限管理器
-- AI 功能强化: 自定义 AI 全局输入唤醒符
-- 屏蔽云控（实验性）
-- 无视系统框架限制: 
-  - 强制允许截屏
-  - 绕过“无法使用此文件夹”的限制
-  - 关联应用小窗启动
-  - 关联应用启动不弹窗
-  - 禁止游戏中降亮度
-- 解除国行 ROM 的语言限制
-
-
-> 更多功能正在慢慢更新...
-
-## 使用要求
-
-- 系统: ZUXOS
-- 环境: Root + LSPosed 框架
+- System: ZUXOS / Hello UI
+- Environment: Root + LSPosed Framework
 
 > [!important]
-> 和非官方 libxposed API 实现的兼容性尚未经过测试，如果您使用 Vector 等第三方框架并碰到了模块相关问题，我们可能不会响应您的 Issue 。
+> Compatibility with unofficial libxposed implementations has not been verified. If you experience issues while using third-party frameworks like Vector, issues may not be accepted.
 
-## 安装步骤
+## Installation
 
-1. 下载 [Releases](https://github.com/qwqawa64/ZUX-ZTool/releases) 中的最新APK文件
-2. 安装并授予 Root 权限
-3. 在 LSPosed 管理器中启用并勾选作用域 APP
-4. 重启系统完成激活
+1. Download the latest APK from [Releases](https://github.com/qwqawa64/ZUX-ZTool/releases).
+2. Install the APK and grant Root permissions.
+3. Enable ZTool in LSPosed Manager and check the required scope applications.
+4. Reboot the system to activate all hooks.
 
-## 获取测试版
+## Beta Builds
 
-在项目的 [GitHub Actions](https://github.com/qwqawa64/ZUX-ZTool/actions) 页面可以获取尚未 Release 的测试版本。
+Untested development builds are available under the project's [GitHub Actions](https://github.com/qwqawa64/ZUX-ZTool/actions) page.
 
-可以查看 [更新日志](/更新日志.txt) 了解最新功能变更。通过 [待办列表](/TODOS.md) 查看可能会被添加到新版本中的功能。
+See [CHANGELOG.md](/CHANGELOG.md) for recent changes, and check [TODOS.md](/TODOS.md) for upcoming features.
 
-## 注意事项
+## Disclaimer
 
-- 本模块仅供学习交流使用，请勿用于非法用途。
-- 部分功能需要 Magisk/KernelSU 模块支持。
-- 部分修改可能导致设备运行异常，请提前备份数据并确保掌握紧急恢复的方法。
+- This module is intended for learning and personal customization only.
+- Certain features require Magisk/KernelSU root environment.
+- System-level modifications carry risks. Always back up your data and ensure you know how to recover your device before proceeding.
 
-## 致谢
+## Acknowledgements
 
-[dantmnf](https://github.com/dantmnf) 的 [UnfuckZUI](https://github.com/dantmnf/UnfuckZUI) 项目，ZTool中的以下功能使用了此项目的实现：
-  - 原生通知图标
-  - 禁用全屏充电动画
-  - 允许外放时禁用杜比
-  - 禁用划卡杀后台
-  - 阻止自动创建访客用户
-  - 重启时保持屏幕方向为竖屏
-  - 原生应用安装器
-  - 原生权限对话框
-  - 总是允许获取APP列表
-  - 默认允许APP自启
+- [dantmnf](https://github.com/dantmnf)'s [UnfuckZUI](https://github.com/dantmnf/UnfuckZUI) project, from which several implementations were adapted:
+  - Native notification icons
+  - Disable full-screen charging animation
+  - Allow disabling Dolby Audio with speaker
+  - Disable swipe-card app killing
+  - Prevent automatic guest user creation
+  - Maintain portrait orientation across reboots
+  - Native package installer support
+  - Native permission dialogs
+  - Always allow package list access
+  - Enable autorun by default
 
-[墨染_nlx](https://github.com/morannlx) 的 [ZUXOS+](https://github.com/morannlx/me.inkdye.zuxos) 促使本模块不断进步，并让我们知道原来还有下面这些呼声很高的功能可以实现：
-  - 在设置内显示快捷跳转入口
-  - 自定义关于设备面板中的信息
-  - 控制中心磁贴无字模式
-  - 控制中心透明度自定义
-  - 控制中心磁贴颜色自定义
-  - 控制中心磁贴圆角半径自定义
-  - 关闭新版本系统可用的小红点提示
-  - 最近任务显示内存信息
-  - 支持在应用信息字段显示更多内容
+- [墨染_nlx](https://github.com/morannlx)'s [ZUXOS+](https://github.com/morannlx/me.inkdye.zuxos) project, which inspired several requested features:
+  - Quick jump shortcut inside Settings
+  - Custom About Device panel info
+  - Control center tile no-label mode
+  - Control center blur and transparency customization
+  - Control center tile color customization
+  - Control center tile corner radius customization
+  - Disable system update red dot badge
+  - Memory usage display in recent tasks
+  - Extended package info in application details

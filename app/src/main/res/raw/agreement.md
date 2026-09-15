@@ -1,147 +1,143 @@
-# ZTool 用户协议
+# ZTool User Agreement
 
-协议版本：1.0
+Agreement version: 1.0
 
-**最后更新日期：2026年6月23日**
+**Last Updated: June 23, 2026**
 
-欢迎使用 ZTool（以下简称“本模块”）。本模块基于 Root 权限与 LSPosed 框架，为运行 ZUXOS 的联想设备提供自定义功能与系统优化选项。
+Welcome to ZTool ("the module"). This module uses Root privileges and the LSPosed framework to provide customization and system optimization features for Lenovo and Motorola devices running ZUXOS and Hello UI.
 
-**重要提示：** 在使用本模块前，请务必仔细阅读并充分理解本协议的全部条款，特别是加粗显示的免责与责任限制条款。如您不同意本协议中的任何条款，请**立即退出并卸载**本应用。
-
----
-
-## 一、协议接受
-
-1.1 您一旦下载、安装、复制、访问或以其他方式使用本模块，即视为您已阅读、理解并同意接受本协议所有条款的约束。
-
-1.2 如您不同意本协议中的任何条款，请不要安装或使用本模块。
-
-1.3 **特别提示：** 如果您选择接受本协议并使用本模块，则表示您已经同意承担因使用本模块可能带来的风险与损害（包括但不限于可能导致您的设备无法享受原厂保修服务），且不会因此而追究开发者的责任。
-
-1.4 如您未满18周岁，请在法定监护人的陪同下阅读本协议。
+**Important Notice:** Before using this module, please carefully read and thoroughly understand all terms of this Agreement, especially the bolded disclaimers and limitations of liability. If you disagree with any terms in this Agreement, please **exit immediately and uninstall** this app.
 
 ---
 
-## 二、软件获取与官方渠道
+## 1. Agreement Acceptance
 
-2.1 本模块仅通过 [GitHub Releases 页面](https://github.com/qwqawa64/ZUX-ZTool/releases) 官方发布。
+1.1 By downloading, installing, copying, accessing, or otherwise using this module, you are deemed to have read, understood, and agreed to be bound by all terms of this Agreement.
 
-2.2 **请勿安装任何来自第三方（包括但不限于网页、群组、个人分发）的 ZTool 副本**，此类版本可能为恶意软件，会导致设备安全风险。
+1.2 If you disagree with any term in this Agreement, please do not install or use this module.
 
-2.3 如您从未经开发者授权的第三方获取本模块或与本模块名称相同的安装程序，开发者无法保证该软件能够正常使用，并对因此给您造成的损失不予负责。
+1.3 **Special Note:** By choosing to accept this Agreement and using this module, you acknowledge and agree to bear all risks and potential damages arising from its use (including, but not limited to, the possible forfeiture of original warranty services), and you agree not to hold the developers liable.
 
-2.4 若已安装不明来源的副本，请立即卸载并彻底检查系统权限及敏感目录，建议清除 Root 并重新刷机，以防潜在病毒利用高权限漏洞。
-
----
-
-## 三、使用授权
-
-3.1 开发者授予您一项个人的、不可转让的、非排他性的许可，以使用本模块。
-
-3.2 您可以仅为非商业目的在个人终端设备上安装、使用本模块。
-
-3.3 **禁止**对本模块进行以下行为：
-- 商业性复制、分发、销售或出租；
-- 二次打包、篡改、反向工程；
-- 冒充开发者或官方渠道散布虚假信息；
-- 将本模块用于任何违法或侵害第三方合法权益的目的。
+1.4 If you are under 18 years of age, please read this Agreement accompanied by a legal guardian.
 
 ---
 
-## 四、风险提示
+## 2. Software Acquisition & Official Channels
 
-**因本模块涉及 Root 权限，在设备中拥有最高控制权，使用本模块存在以下风险，请您充分知悉：**
+2.1 This module is officially released only through the [GitHub Releases page](https://github.com/qwqawa64/ZUX-ZTool/releases).
 
-4.1 **保修失效风险**：使用本模块获取 Root 权限可能导致您的设备无法享受原厂保修服务。
+2.2 **Do not install any copies of ZTool from third parties (including but not limited to websites, groups, or personal redistribution).** Such versions may be malicious and present severe security risks to your device.
 
-4.2 **数据丢失风险**：Root 及系统级操作过程中，存在小概率导致设备数据（包括但不限于 SD 卡数据）丢失的风险。
+2.3 If you obtain this module or an installer with the same name from an unauthorized third party, the developers cannot guarantee normal operation and are not liable for any resulting damages.
 
-4.3 **系统稳定性风险**：本模块不保证在所有系统版本、设备型号上兼容或稳定运行。部分功能可能随系统更新而失效。
-
-4.4 **第三方应用兼容性风险**：本模块不保证对所有目标应用均有效，亦不保证不会与目标应用的用户协议产生冲突。
-
-4.5 **安全风险**：本模块拥有系统最高权限，任何安全漏洞都可能造成严重后果。
-
-4.6 **责任自担**：**您应对使用本模块的一切后果自行承担全部责任**。开发者不对因使用本模块导致的任何直接、间接、偶然或特殊的损害承担赔偿责任。
+2.4 If you have installed a copy from an unknown source, please uninstall it immediately, thoroughly check system permissions and sensitive directories, and consider removing Root and reflashing the device.
 
 ---
 
-## 五、用户义务
+## 3. License Grant
 
-5.1 您在使用本模块时，必须遵守中华人民共和国法律法规。
+3.1 The developers grant you a personal, non-transferable, non-exclusive license to use this module.
 
-5.2 如因更改选项后出现问题，请先恢复设置并重启作用域。
+3.2 You may install and use this module on personal terminal devices for non-commercial purposes only.
 
-5.3 **请勿在联想官方渠道（包括群组、反馈平台等）中提及本模块或因此质疑官方**。违反本条可能影响后续更新支持。
-
-5.4 如遇功能失效等问题，请向开发者反馈，**并附上本模块与 LSPosed 的详细日志**。
-
----
-
-## 六、隐私保护
-
-6.1 本模块重视用户个人信息的安全和保护。如本模块涉及收集任何用户数据，开发者将采取合理的安全措施防止数据被泄露、篡改或丢失。
-
-6.2 **本模块不会对您的个人信息进行包括但不限于收集、分析、上传、出售等操作**。如果您发现您的 ZTool 副本对您的个人信息进行了此类处理，说明您下载到了被恶意修改的软件副本，请参考第二节进行处理。
+3.3 The following actions are **strictly prohibited**:
+- Commercial copying, redistribution, sales, or leasing;
+- Repackaging, tampering, or reverse engineering;
+- Impersonating developers or official channels to spread false information;
+- Using this module for illegal purposes or infringing upon legitimate third-party rights.
 
 ---
 
-## 七、开源许可证
+## 4. Risk Disclosures
 
-7.1 本模块为遵循 **Apache 2.0 协议**的开源软件，在 GitHub 上免费发布。
+**Because this module involves Root permissions and has high-level device control, please be fully aware of the following risks:**
 
-7.2 如果您为此付费，即遭遇诈骗。请立即停止使用该副本，转用本项目 GitHub Releases 页面的官方版本。
+4.1 **Warranty Void Risk**: Acquiring Root permissions and using this module may void your device's manufacturer warranty.
 
-7.3 本用户协议中关于使用限制、责任承担等条款，在 Apache 2.0 许可证允许的范围内依然有效。
+4.2 **Data Loss Risk**: System-level operations carry a small risk of data loss. Always back up your important data.
 
----
+4.3 **System Stability Risk**: This module is not guaranteed to be compatible or stable across all system versions or device models. Certain features may break after system updates.
 
-## 八、免责声明
+4.4 **Third-Party App Compatibility**: The module is not guaranteed to work with all target apps or comply with their respective user terms.
 
-**8.1 本模块“按原样”（AS-IS）提供，不附带任何明示或默示的保证**。
+4.5 **Security Risk**: Operating with elevated privileges means security vulnerabilities could lead to serious consequences.
 
-**8.2 开发者及所有贡献者明确否认任何形式的保证，包括但不限于**：
-- 关于所有权、非侵权、适销性或特定用途适用性的默示保证；
-- 本模块满足您特定需求的保证；
-- 本模块与其他软件或硬件兼容的保证；
-- 本模块无错误或不间断运行的保证。
-
-**8.3 在任何情况下，开发者及贡献者均不对因使用或无法使用本模块而产生的任何损害赔偿承担责任**，包括但不限于直接损失、间接损失、利润损失、数据丢失或业务中断。
+4.6 **Assumption of Risk**: **You assume all responsibility for any consequences arising from using this module.** The developers shall not be liable for any direct, indirect, incidental, or consequential damages.
 
 ---
 
-## 九、协议修改
+## 5. User Responsibilities
 
-9.1 开发者保留随时修改本协议的权利。
+5.1 You must comply with applicable local laws and regulations when using this module.
 
-9.2 本协议发生变更时，将在官方发布渠道进行公告。您可以随时查看最新协议。
+5.2 If issues occur after modifying options, please restore the settings first and reboot the affected scope.
 
-9.3 如您不同意开发者所做的修改，请停止使用本模块。您继续使用本模块即视为接受修改后的协议。
+5.3 **Do not mention this module in official OEM channels (including official community groups and feedback platforms) or question official support because of issues caused by it.** Violating this may affect future update support.
 
----
-
-## 十、适用法律与争议解决
-
-10.1 本协议的解释、执行及争议解决均适用中华人民共和国法律。
-
-10.2 如双方就本协议内容或其执行发生任何争议，应首先友好协商解决。
-
-10.3 协商不成的，任何一方均可向开发者所在地有管辖权的人民法院提起诉讼。
+5.4 If you encounter feature failures or bugs, please submit feedback to the developers **along with detailed logs from ZTool and LSPosed**.
 
 ---
 
-## 十一、联系方式
+## 6. Privacy Protection
 
-如您遇到任何与本模块使用相关的问题，或对本协议有任何疑问，请通过 GitHub Issues 与开发者联系。
+6.1 The developers value the security and privacy of users' personal information.
+
+6.2 **This module does NOT collect, analyze, upload, or sell your personal data.** If you discover a copy of ZTool performing such actions, it indicates a maliciously modified build; please refer to Section 2 for remedial steps.
 
 ---
 
-## 十二、其他
+## 7. Open Source License
 
-12.1 本协议各条款的标题仅为查阅方便而设，不影响本协议任何条款的含义或解释。
+7.1 This module is open-source software licensed under the **Apache 2.0 License** and distributed free of charge on GitHub.
 
-12.2 如本协议的任何条款被认定为无效或不可执行，该条款应在必要的最小范围内予以限制或删除，其余条款继续完全有效。
+7.2 If you paid for this module, you were scammed. Please stop using that copy and obtain the official version from GitHub Releases.
 
-12.3 开发者未行使或执行本协议中的任何权利，不构成对该权利或条款的放弃。
+7.3 Terms regarding usage restrictions and liability allocation in this Agreement remain in full force to the extent permitted by the Apache 2.0 License.
 
-12.4. ZTool 开发者保留对模块功能及上述条款的最终解释权。
+---
+
+## 8. Disclaimer of Warranties
+
+**8.1 This module is provided "AS-IS" without warranty of any kind, express or implied.**
+
+**8.2 The developers and contributors explicitly disclaim all warranties, including but not limited to:**
+- Implied warranties of title, non-infringement, merchantability, or fitness for a particular purpose;
+- Warranties that the module will meet your specific requirements;
+- Warranties that the module is compatible with all software or hardware;
+- Warranties of error-free or uninterrupted operation.
+
+**8.3 Under no circumstances shall the developers or contributors be held liable for any damages** arising from the use or inability to use this module, including loss of data, profits, or business interruption.
+
+---
+
+## 9. Agreement Amendments
+
+9.1 The developers reserve the right to amend this Agreement at any time.
+
+9.2 Changes will be announced via official release channels. Continued use of the module constitutes acceptance of the amended Agreement.
+
+---
+
+## 10. Applicable Law & Dispute Resolution
+
+10.1 The interpretation, execution, and dispute resolution of this Agreement are governed by the applicable laws of the jurisdiction where the primary developers reside.
+
+10.2 Any dispute arising from this Agreement should first be resolved through friendly negotiation.
+
+---
+
+## 11. Contact
+
+For questions regarding this module or this Agreement, please contact the developers via GitHub Issues.
+
+---
+
+## 12. Miscellaneous
+
+12.1 Section headings are for convenience only and do not affect the interpretation of terms.
+
+12.2 If any provision is deemed invalid or unenforceable, that provision shall be limited to the minimum extent necessary, and the remaining provisions shall remain in full force.
+
+12.3 Failure by the developers to enforce any right shall not constitute a waiver of that right.
+
+12.4 The ZTool developers reserve the right of final interpretation of module features and the above terms.
