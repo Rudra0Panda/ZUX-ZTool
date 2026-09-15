@@ -20,15 +20,15 @@ class ForceLenovoAOD : AppHookModule() {
     @Throws(Throwable::class)
     override fun handleLoadPackage(param: PackageLoadedParam) {
         val classLoader = param.defaultClassLoader
-        // 直接设置mIsGoingToStartAOD字段
+        // Directly set mIsGoingToStartAOD field
         hookZuiDozeTriggers(classLoader)
-        // 额外确保AOD相关检查通过
+        // Additionally ensure AOD-related checks pass
         hookAODChecks()
     }
 
     private fun hookZuiDozeTriggers(classLoader: ClassLoader) {
         try {
-            // Hook ZuiDozeTriggers的构造函数，确保实例创建后立即设置标志
+            // Hook ZuiDozeTriggers constructor to ensure flag is set immediately after instance creation
             val ctor: Constructor<*> = classLoader.loadClass(ZUI_DOZE_TRIGGERS_CLASS)
                 .getDeclaredConstructor(
                     classLoader.loadClass("com.android.systemui.doze.DozeTriggers"),
@@ -36,7 +36,7 @@ class ForceLenovoAOD : AppHookModule() {
                 )
             hookWithId(ctor, "ctor") { chain ->
                 chain.proceed()
-                // 在构造函数执行后，立即设置AOD启动标志
+                // Immediately set AOD start flag after constructor runs
                 chain.thisObject.javaClass.getDeclaredField("mIsGoingToStartAOD")
                     .setBoolean(chain.thisObject, true)
                 logger.debug("ZuiDozeTriggers constructed, forced mIsGoingToStartAOD = true")
@@ -49,19 +49,19 @@ class ForceLenovoAOD : AppHookModule() {
 
     private fun hookAODChecks() {
         try {
-            // Hook SystemProperties检查
+            // Hook SystemProperties check
             val getIntMethod = Class.forName("android.os.SystemProperties")
                 .getDeclaredMethod("getInt", String::class.java, Int::class.javaPrimitiveType)
             hookWithId(getIntMethod, "get_int") { chain ->
                 val key = chain.args[0] as String
                 if ("ro.config.aod.support" == key) {
                     logger.debug("Bypassed ro.config.aod.support check")
-                    return@hookWithId 1 // 强制返回支持AOD
+                    return@hookWithId 1 // Force return AOD supported
                 }
                 chain.proceed()
             }
 
-            // Hook AOD设置检查
+            // Hook AOD settings check
             @SuppressLint("DiscouragedPrivateApi") val getIntForUserMethod =
                 Settings.System::class.java
                     .getDeclaredMethod(

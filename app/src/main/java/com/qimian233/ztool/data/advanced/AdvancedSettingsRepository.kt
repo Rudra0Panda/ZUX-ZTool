@@ -13,9 +13,9 @@ import io.github.libxposed.service.XposedService
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * 高级选项仓库。
+ * Advanced settings repository.
  * <p>
- * 封装模块热重载等开发者功能，处理线程切换与结果汇总。
+ * Encapsulates developer features such as module hot reload, handles thread switching and result aggregation.
  * </p>
  */
 class AdvancedSettingsRepository(
@@ -24,21 +24,21 @@ class AdvancedSettingsRepository(
 
     private val mainHandler = Handler(Looper.getMainLooper())
 
-    // ---- 查询 ----
+    // ---- Query ----
 
-    /** 获取 API 版本，未激活时返回 0 */
+    /** Get API version, returns 0 if not activated */
     fun getApiVersion(): Int = XposedServiceBridge.getApiVersion()
 
-    /** 获取运行中的 Hook 目标列表 */
+    /** Get running Hook targets list */
     fun getRunningTargets(): List<HookedTarget> = XposedServiceBridge.getRunningTargets()
 
-    // ---- 热重载 ----
+    // ---- Hot Reload ----
 
     /**
-     * 对当前所有非 RELOADING 状态的运行目标执行热重载。
+     * Perform hot reload on all current running targets not in RELOADING state.
      *
-     * @param onProgress 每个目标完成后回调（主线程），参数为 (processName, status, message)
-     * @param onComplete 全部完成后回调（主线程），参数为 (succeeded, failed, unsupported, died)
+     * @param onProgress Callback after each target finishes (main thread), arguments: (target, result)
+     * @param onComplete Callback after all targets finish (main thread), arguments: (succeeded, failed, unsupported, died, details)
      */
     fun performHotReloadAll(
         onProgress: (target: HookedTarget, result: HotReloadResult) -> Unit,
@@ -79,19 +79,19 @@ class AdvancedSettingsRepository(
 
                     when (status) {
                         HotReloadResult.Status.SUCCEEDED -> {
-                            Log.d(TAG, "热重载成功: $processName")
+                            Log.d(TAG, "Hot reload succeeded: $processName")
                             succeeded.incrementAndGet()
                         }
                         HotReloadResult.Status.FAILED -> {
-                            Log.w(TAG, "热重载失败: $processName — $message")
+                            Log.w(TAG, "Hot reload failed: $processName - $message")
                             failed.incrementAndGet()
                         }
                         HotReloadResult.Status.UNSUPPORTED -> {
-                            Log.w(TAG, "热重载不支持: $processName — $message")
+                            Log.w(TAG, "Hot reload not supported: $processName - $message")
                             unsupported.incrementAndGet()
                         }
                         HotReloadResult.Status.PROCESS_DIED -> {
-                            Log.w(TAG, "目标进程已退出: $processName — $message")
+                            Log.w(TAG, "Target process exited: $processName - $message")
                             died.incrementAndGet()
                         }
                         HotReloadResult.Status.IN_PROGRESS -> { return }
@@ -117,7 +117,7 @@ class AdvancedSettingsRepository(
             try {
                 XposedServiceBridge.hotReloadModule(target, Bundle(), callback)
             } catch (e: Exception) {
-                Log.e(TAG, "发起热重载异常: ${target.processName}", e)
+                Log.e(TAG, "Exception initiating hot reload: ${target.processName}", e)
                 failed.incrementAndGet()
                 val detail = HotReloadDetail(target.processName, "FAILED", e.message ?: "unknown")
                 details.add(detail)
@@ -133,17 +133,17 @@ class AdvancedSettingsRepository(
         }
     }
 
-    // ---- 持久化值重置 ----
+    // ---- Persistent Value Reset ----
 
     /**
-     * 重置所有被本应用 Hook 修改过的持久化值，逐项执行并汇总结果。
+     * Reset all persistent values modified by this app's Hooks, executing each item and aggregating results.
      *
-     * 当前支持：
-     * - doze_always_on：清除旧版本通过 `settings put secure doze_always_on 1` 写入的残留。
-     * - autorun：清除安全中心 AutoRunManager 表 attr 列中被 Hook 写入的白名单位。
-     * - mistouch：清除游戏中心防误触持久化（Settings.Global.key_game_assistant_prevent_misoperation）。
+     * Currently supported:
+     * - doze_always_on: Clears residue written by older versions via `settings put secure doze_always_on 1`.
+     * - autorun: Clears whitelist bits written by Hook in the attr column of SafeCenter's AutoRunManager table.
+     * - mistouch: Clears game center mistouch prevention persistence (Settings.Global.key_game_assistant_prevent_misoperation).
      *
-     * @param onComplete 全部项执行完成后回调（调用方线程），参数为 (succeeded, failed, unsupported, details)
+     * @param onComplete Callback after all items are executed (caller thread), arguments: (succeeded, failed, unsupported, details)
      */
     fun resetPersistentValues(
         onComplete: (succeeded: Int, failed: Int, unsupported: Int, details: List<PersistentResetDetail>) -> Unit
@@ -153,21 +153,21 @@ class AdvancedSettingsRepository(
         var failed = 0
         val unsupported = 0
 
-        // 1. 原生 AOD 开关（旧版 shell 写入的残留值）
+        // 1. Native AOD switch (residue written by older shell versions)
         val aod = resetDozeAlwaysOn()
         if (aod.success) succeeded++ else failed++
         details += PersistentResetDetail(
             KEY_RESET_AOD, if (aod.success) "SUCCEEDED" else "FAILED", aod.message
         )
 
-        // 2. 应用自启动状态（安全中心 AutoRunManager.attr 白名单位）
+        // 2. App autorun status (SafeCenter AutoRunManager.attr whitelist bit)
         val autorun = resetAutorun()
         if (autorun.success) succeeded++ else failed++
         details += PersistentResetDetail(
             KEY_RESET_AUTORUN, if (autorun.success) "SUCCEEDED" else "FAILED", autorun.message
         )
 
-        // 3. 游戏防误触状态（游戏中心 SettingsValueUtilKt → Settings.Global）
+        // 3. Game mistouch prevention status (Game center SettingsValueUtilKt -> Settings.Global)
         val mistouch = resetMistakeTouch()
         if (mistouch.success) succeeded++ else failed++
         details += PersistentResetDetail(
@@ -178,32 +178,32 @@ class AdvancedSettingsRepository(
     }
 
     /**
-     * 清除旧版本通过 `settings put secure doze_always_on 1` 写入的残留值。
-     * 现在原生 AOD 由 Hook（ForceNativeAod）接管，删除残留让系统恢复默认。
+     * Clear residue values written by older versions via `settings put secure doze_always_on 1`.
+     * Native AOD is now handled by Hook (ForceNativeAod); deleting residue restores system defaults.
      */
     private fun resetDozeAlwaysOn(): ResetOutcome {
         val current = shellExecutor.executeRootCommand("settings get secure doze_always_on")
         if (current.isSuccess) {
             val value = current.output.trim()
             if (value.isEmpty() || value.equals("null", ignoreCase = true)) {
-                return ResetOutcome(true, "doze_always_on 无残留值，无需重置")
+                return ResetOutcome(true, "doze_always_on has no residual value, no reset needed")
             }
         }
         val result = shellExecutor.executeRootCommand("settings delete secure doze_always_on")
         return if (result.isSuccess) {
-            ResetOutcome(true, "已清除 doze_always_on 残留值")
+            ResetOutcome(true, "Cleared doze_always_on residual value")
         } else {
-            ResetOutcome(false, "清除 doze_always_on 失败：${result.error}")
+            ResetOutcome(false, "Failed to clear doze_always_on: ${result.error}")
         }
     }
 
     /**
-     * 清除安全中心 AutoRunManager 表中被 EnableAutorunByDefault Hook 写入的白名单位。
-     * 数据库：com.zui.safecenter / com.lenovo.safecenter 的 databases/perf_leemcenter.db，
-     * 表 AutoRunManager 的 attr 列。位掩码：
+     * Clear whitelist bits written by EnableAutorunByDefault Hook in SafeCenter's AutoRunManager table.
+     * Database: com.zui.safecenter / com.lenovo.safecenter at databases/perf_leemcenter.db,
+     * table AutoRunManager, column attr. Bitmasks:
      * - USER_WHITE_LIST_APP = 0x20000000
      * - RELATIVE_APP_WHITE_LIST = 0x40000000
-     * 仅清除白名单位，不动 state 列（用户手动设置的自启开关）。
+     * Only clears whitelist bits without touching the state column (user manual autorun switches).
      */
     @SuppressLint("SdCardPath")
     private fun resetAutorun(): ResetOutcome {
@@ -214,46 +214,46 @@ class AdvancedSettingsRepository(
         )
         var cleared = false
         for (dbPath in dbPaths) {
-            // 库不存在则跳过（可能为另一包变体或无残留）
+            // Skip if database does not exist (may be another package variant or no residue)
             val exists = shellExecutor.executeRootCommand("ls $dbPath")
             if (!exists.isSuccess) continue
-            // 表可能未创建（从未打开自启管理），先确认表存在，避免误报 sqlite3 不可用
+            // Table may not be created (autorun management never opened); check table existence first to avoid false alarm of unavailable sqlite3
             val tableCheck = shellExecutor.executeRootCommand(
                 "sqlite3 \"$dbPath\" \"SELECT name FROM sqlite_master WHERE type='table' AND name='AutoRunManager';\""
             )
             if (!tableCheck.isSuccess) {
-                return ResetOutcome(false, "清除自启动白名单失败：sqlite3 不可用或数据库无法访问")
+                return ResetOutcome(false, "Failed to clear autorun whitelist: sqlite3 unavailable or database inaccessible")
             }
             if (tableCheck.output.trim().isEmpty()) continue
-            // 预检残留计数
+            // Pre-check residual count
             val count = shellExecutor.executeRootCommand(
                 "sqlite3 \"$dbPath\" \"SELECT count(*) FROM AutoRunManager WHERE (attr & $whitelistMask) != 0;\""
             )
             if (!count.isSuccess) {
-                return ResetOutcome(false, "清除自启动白名单失败：${count.error}")
+                return ResetOutcome(false, "Failed to clear autorun whitelist: ${count.error}")
             }
             if (count.output.trim() == "0") continue
-            // 清除白名单位（保留 stubborn / relative 等其他位）
+            // Clear whitelist bits (retain stubborn / relative and other bits)
             val update = shellExecutor.executeRootCommand(
                 "sqlite3 \"$dbPath\" \"UPDATE AutoRunManager SET attr = attr & ~$whitelistMask;\""
             )
             if (!update.isSuccess) {
-                return ResetOutcome(false, "清除自启动白名单失败：${update.error}")
+                return ResetOutcome(false, "Failed to clear autorun whitelist: ${update.error}")
             }
             cleared = true
         }
         return if (cleared) {
-            ResetOutcome(true, "已清除自启动白名单残留")
+            ResetOutcome(true, "Cleared autorun whitelist residue")
         } else {
-            ResetOutcome(true, "未发现自启动白名单残留")
+            ResetOutcome(true, "No autorun whitelist residue found")
         }
     }
 
     /**
-     * 清除游戏中心防误触持久化值。
-     * 写入方为 `com.zui.util.SettingsValueUtilKt.setPreventMisoperation`，
-     * 最终落到 `Settings.Global.key_game_assistant_prevent_misoperation`。
-     * AutoMistakeTouchHook 仅拦截内存态写入，删除残留让系统恢复默认。
+     * Clear game center mistouch prevention persistent value.
+     * Writer is `com.zui.util.SettingsValueUtilKt.setPreventMisoperation`,
+     * ultimately falling back to `Settings.Global.key_game_assistant_prevent_misoperation`.
+     * AutoMistakeTouchHook only intercepts in-memory writes; deleting residue restores system defaults.
      */
     private fun resetMistakeTouch(): ResetOutcome {
         val current = shellExecutor.executeRootCommand(
@@ -262,16 +262,16 @@ class AdvancedSettingsRepository(
         if (current.isSuccess) {
             val value = current.output.trim()
             if (value.isEmpty() || value.equals("null", ignoreCase = true)) {
-                return ResetOutcome(true, "防误触无残留值，无需重置")
+                return ResetOutcome(true, "Mistouch prevention has no residual value, no reset needed")
             }
         }
         val result = shellExecutor.executeRootCommand(
             "settings delete global key_game_assistant_prevent_misoperation"
         )
         return if (result.isSuccess) {
-            ResetOutcome(true, "已清除防误触持久化值")
+            ResetOutcome(true, "Cleared mistouch prevention persistent value")
         } else {
-            ResetOutcome(false, "清除防误触失败：${result.error}")
+            ResetOutcome(false, "Failed to clear mistouch prevention: ${result.error}")
         }
     }
 
@@ -286,7 +286,7 @@ class AdvancedSettingsRepository(
 }
 
 /**
- * 单次热重载操作的结果详情，供 UI 展示。
+ * Result details of a single hot reload operation, for UI display.
  */
 data class HotReloadDetail(
     val processName: String,
@@ -295,7 +295,7 @@ data class HotReloadDetail(
 )
 
 /**
- * 单次持久化值重置的结果详情，供 UI 展示。
+ * Result details of a single persistent value reset operation, for UI display.
  */
 data class PersistentResetDetail(
     val key: String,

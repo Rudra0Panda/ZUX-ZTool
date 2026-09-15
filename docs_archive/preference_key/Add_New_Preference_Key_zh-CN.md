@@ -1,85 +1,85 @@
-# 偏好键管理系统
+# Preference Key Management System
 
-本文档说明 ZUX-ZTool 当前的偏好键（Preference Key）集中管理架构，以及如何在不同场景下添加新的偏好键。
+This document outlines ZUX-ZTool's centralized architecture for managing Preference Keys and details how to add new preference keys across different application scenarios.
 
-## 架构概览
+## Architectural Overview
 
-所有 Hook 和应用设置共用同一个 SharedPreferences 文件 `xposed_module_config`。偏好键的**名称**、**数据类型**、**默认值**现在统一在单一可信源中定义：
+All Hooks and application settings share the single SharedPreferences file `xposed_module_config`. The **name**, **data type**, and **default value** of preference keys are unified in a single source of truth:
 
 ```
-app/src/main/java/com/qimian233/ztool/data/keys/PreferenceKeys.kt    ← 所有键的权威定义
-app/src/main/java/com/qimian233/ztool/utils/ModulePreferencesUtils.kt  ← 应用侧读写工具
+app/src/main/java/com/qimian233/ztool/data/keys/PreferenceKeys.kt    ← Authoritative definition of all keys
+app/src/main/java/com/qimian233/ztool/utils/ModulePreferencesUtils.kt  ← App-side read/write utilities
 ```
 
-### 数据类
+### Typed Key Models
 
-`PreferenceKeys.kt` 中定义了四种类型化键：
+Four typed key classes are defined in `PreferenceKeys.kt`:
 
-| 类型      | Kotlin 类                   | 示例                                                 |
+| Type    | Kotlin Class               | Example                                            |
 |---------|----------------------------|----------------------------------------------------|
 | Boolean | `BoolKey(name, default)`   | `BoolKey("disable_force_stop", false)`             |
 | Int     | `IntKey(name, default)`    | `IntKey("CustomLauncherRow", 4)`                   |
 | Float   | `FloatKey(name, default)`  | `FloatKey("Custom_StatusBarClockTextSize", 16.0f)` |
 | String  | `StringKey(name, default)` | `StringKey("ForceStopWhiteList", "")`              |
 
-每个键同时作为 `PreferenceKeys` object 的 `val` 常量暴露，在 Kotlin 中通过 `PreferenceKeys.CONSTANT_NAME.name` 访问。
+Each key is exposed as a `val` constant within the `PreferenceKeys` object, accessed in Kotlin via `PreferenceKeys.CONSTANT_NAME.name`.
 
-### 自动类型推断
+### Automatic Type Inference
 
-`ModulePreferencesUtils.writeConfigToSharedPrefs()` 在备份/恢复时，会遍历 `PreferenceKeys` 中的列表（`booleanKeys`、`intKeys`、`floatKeys`）来推断每个键的正确数据类型。**只要在 `PreferenceKeys.kt` 的对应列表中注册了新键，备份/恢复就能自动正确处理，无需额外代码。**
+When performing backups or restores, `ModulePreferencesUtils.writeConfigToSharedPrefs()` iterates through typed lists in `PreferenceKeys` (`booleanKeys`, `intKeys`, `floatKeys`) to infer data types automatically. **As long as a new key is registered in the corresponding list in `PreferenceKeys.kt`, backup and restore handle it correctly without extra code.**
 
 ---
 
-## 添加新偏好键的流程
+## Workflow for Adding a New Preference Key
 
-### 步骤 1：在 PreferenceKeys.kt 中注册
+### Step 1: Register in PreferenceKeys.kt
 
-打开 `app/src/main/java/com/qimian233/ztool/data/keys/PreferenceKeys.kt`，根据键的数据类型在对应区域添加常量，同时将其加入对应的类型列表。
+Open `app/src/main/java/com/qimian233/ztool/data/keys/PreferenceKeys.kt`, locate the corresponding section by data type, define the constant, and append it to its typed list.
 
-#### Boolean 键（最常见：Hook 启用开关、子功能开关）
+#### Boolean Keys (Most Common: Hook Toggles, Sub-feature Switches)
 
 ```kotlin
-// 在 Boolean 键区域按作用域分组的适当位置添加：
+// Add in the Boolean section under the appropriate scope grouping:
 val NEW_FEATURE_ENABLED = BoolKey("new_feature_enabled", false)
 
-// 然后在 booleanKeys 列表末尾加入 NEW_FEATURE_ENABLED
+// Then append NEW_FEATURE_ENABLED to the booleanKeys list
 ```
 
-**Boolean 键同时也是 Hook 的启用/禁用开关**：如果键名等于某个 Hook 模块的 `getModuleName()` 返回值，前端打开这个开关就会启用该 Hook（无需额外代码）；如果键是子功能开关（非模块名），则需要在 Hook 代码中手动读取。
+**Boolean keys also act as Hook module enable/disable switches**: If the key name matches the string returned by a Hook module's `getModuleName()`, toggling this switch in the frontend enables that Hook automatically without boilerplate code. If the key is a sub-feature toggle (not matching module name), read it manually within the Hook implementation.
 
-#### Int 键
+#### Int Keys
 
 ```kotlin
 val NEW_FEATURE_LEVEL = IntKey("new_feature_level", 5)
 
-// 加入 intKeys 列表
+// Append to intKeys list
 ```
 
-#### Float 键
+#### Float Keys
 
 ```kotlin
 val NEW_FEATURE_SCALE = FloatKey("new_feature_scale", 1.0f)
 
-// 加入 floatKeys 列表
+// Append to floatKeys list
 ```
 
-#### String 键
+#### String Keys
 
 ```kotlin
 val NEW_FEATURE_PATTERN = StringKey("new_feature_pattern", "")
 
-// 加入 stringKeys 列表
+// Append to stringKeys list
 ```
 
-**关键规则：**
-- 默认值必须与 Hook 侧和 Repository 侧使用的一致
-- 必须将新键加入对应类型的列表（`booleanKeys` / `intKeys` / `floatKeys` / `stringKeys`），否则备份/恢复无法识别
+**Critical Rules:**
+- The default value must match what is used across both Hook and Repository implementations.
+- You must register the new key in the appropriate list (`booleanKeys`, `intKeys`, `floatKeys`, `stringKeys`), otherwise backup/restore cannot recognize it.
 
 ---
 
-### 步骤 2：在 Repository 中使用
+### Step 2: Use in Repository
 
-Repository 的 `companion object` 中不再直接写字符串字面量，而是引用 `PreferenceKeys` 常量：
+Repositories reference `PreferenceKeys` constants in their `companion object` rather than hardcoding string literals:
 
 ```kotlin
 import com.qimian233.ztool.data.keys.PreferenceKeys
@@ -109,20 +109,20 @@ class ExampleSettingsRepository(
         const val LEVEL_MAX = 10
         private const val DEFAULT_LEVEL = 5
 
-        // 使用 PreferenceKeys 常量而非手写字符串
+        // Use PreferenceKeys constants instead of string literals
         private val KEY_NEW_HOOK_ENABLED = PreferenceKeys.NEW_FEATURE_ENABLED.name
         private val KEY_CUSTOM_LEVEL = PreferenceKeys.NEW_FEATURE_LEVEL.name
     }
 }
 ```
 
-**注意：** 因为 `PreferenceKeys.CONSTANT.name` 不是编译期常量，companion object 中的声明需从 `const val` 改为 `val`。
+**Note:** Because `PreferenceKeys.CONSTANT.name` is not a compile-time constant, companion object declarations must use `val` instead of `const val`.
 
 ---
 
-### 步骤 3：在 Kotlin Hook 中使用
+### Step 3: Use in Kotlin Hooks
 
-Kotlin Hook 中通过 `PreferenceKeys` 常量读取偏好键：
+In Kotlin Hooks, read preference keys via `PreferenceKeys` constants:
 
 ```kotlin
 import com.qimian233.ztool.data.keys.PreferenceKeys
@@ -135,62 +135,62 @@ class NewFeatureHook : AppHookModule() {
     override fun getTargetPackages(): Array<String> = arrayOf("com.android.systemui")
 
     override fun handleLoadPackage(param: XposedModuleInterface.PackageLoadedParam) {
-        // 读取主开关（实际上 isEnabled() 已经检查了 getModuleName()，
-        // 但 Hook 内部可能需要读取子功能开关）
+        // Read main switch (isEnabled() already verifies getModuleName(),
+        // but hooks may need to read additional sub-feature switches)
         val prefs = xposed.getRemotePreferences("xposed_module_config")
 
-        // Boolean 子功能
+        // Boolean sub-feature
         val subFeatureEnabled = prefs.getBoolean(
             PreferenceKeys.SUB_FEATURE_ENABLED.name,
             PreferenceKeys.SUB_FEATURE_ENABLED.default
         )
 
-        // Int 配置
+        // Int setting
         val level = prefs.getInt(
             PreferenceKeys.NEW_FEATURE_LEVEL.name,
             PreferenceKeys.NEW_FEATURE_LEVEL.default
         )
 
-        // Float 配置
+        // Float setting
         val scale = prefs.getFloat(
             PreferenceKeys.NEW_FEATURE_SCALE.name,
             PreferenceKeys.NEW_FEATURE_SCALE.default
         )
 
-        // String 配置
+        // String setting
         val pattern = prefs.getString(
             PreferenceKeys.NEW_FEATURE_PATTERN.name,
             PreferenceKeys.NEW_FEATURE_PATTERN.default
         ) ?: ""
 
-        // ... Hook 逻辑 ...
+        // ... Hook logic ...
     }
 }
 ```
 
-**要点：**
-- `getModuleName()` 返回的字符串同时也是 `xposed_module_config` 中的 Boolean 键，由 `BaseHookModule.isEnabled()` 自动读取
-- 如果 Hook 没有子功能开关（仅由模块名控制启用/禁用），则 Hook 中无需额外读取偏好键
-- 子功能键使用 `PreferenceKeys.CONSTANT_NAME.name` 获取键名字符串，用 `PreferenceKeys.CONSTANT_NAME.default` 获取默认值
+**Key Points:**
+- The string returned by `getModuleName()` doubles as the Boolean toggle key in `xposed_module_config`, checked automatically by `BaseHookModule.isEnabled()`.
+- If the Hook has no sub-feature toggles (controlled entirely by the module name), no extra preference reading is needed.
+- Sub-feature keys obtain their key string via `PreferenceKeys.CONSTANT_NAME.name` and their default value via `PreferenceKeys.CONSTANT_NAME.default`.
 
 ---
 
-## 关键规则
+## Critical Rules
 
-1. **所有 `xposed_module_config` 中的键必须先在 `PreferenceKeys.kt` 注册**，再在 Repository 和 Hook 中使用。
-2. **键名不得重命名**。已存在的键名必须保持不变，以免破坏用户配置。
-3. **默认值必须一致**：`PreferenceKeys` 中定义的默认值应与 Repository 和 Hook 中使用的默认值完全一致。
-4. **类型必须匹配**：Boolean 键加入 `booleanKeys` 列表，Int 键加入 `intKeys` 列表，以此类推。类型不匹配会导致备份/恢复时数据损坏。
-5. **不要手写键名字符串**。始终使用 `PreferenceKeys.CONSTANT_NAME.name` 引用，确保拼写和大小写完全一致。
-6. **`PreferenceKeys` 中的 `val` 常量命名**使用 `SCREAMING_SNAKE_CASE`，与 `BoolKey` 的 `name` 参数（通常为 `snake_case` 或 `PascalCase` 的历史命名）区分开。
+1. **All keys in `xposed_module_config` must be registered in `PreferenceKeys.kt` first** before being referenced in Repositories or Hooks.
+2. **Key names must never be renamed**. Existing key names must remain preserved to avoid breaking user configurations.
+3. **Default values must remain consistent**: Defaults defined in `PreferenceKeys` must match the defaults used in Repositories and Hooks.
+4. **Types must match**: Boolean keys belong in `booleanKeys`, Int keys in `intKeys`, and so on. Mismatches corrupt backup/restore operations.
+5. **Never hardcode key strings**. Always use `PreferenceKeys.CONSTANT_NAME.name` to guarantee consistent spelling and casing.
+6. **Constant naming convention**: `val` constants in `PreferenceKeys` use `SCREAMING_SNAKE_CASE`, distinguishing them from the `BoolKey` `name` parameter (which may be historical `snake_case` or `PascalCase`).
 
 ---
 
-## 文件清单
+## File Manifest
 
-| 文件                                | 作用                                                     |
-|-----------------------------------|--------------------------------------------------------|
-| `data/keys/PreferenceKeys.kt`    | 所有键的单一可信源，按类型分列表                                       |
-| `utils/ModulePreferencesUtils.kt` | 应用侧 SharedPreferences 读写工具                             |
-| `data/**/*Repository.kt`          | 各功能模块的 Repository，通过 `PreferenceKeys.CONST.name` 引用键   |
-| `hook/modules/**/`                | Hook 实现，Kotlin Hook 通过 `PreferenceKeys.CONST.name` 读取键 |
+| File | Purpose |
+|---|---|
+| `data/keys/PreferenceKeys.kt` | Authoritative single source of truth for all keys, grouped by typed lists |
+| `utils/ModulePreferencesUtils.kt` | App-side SharedPreferences read/write helper |
+| `data/**/*Repository.kt` | Repositories referencing keys via `PreferenceKeys.CONST.name` |
+| `hook/modules/**/` | Hook implementations referencing keys via `PreferenceKeys.CONST.name` |

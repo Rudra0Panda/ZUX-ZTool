@@ -59,7 +59,7 @@ https://compose-miuix-ui.github.io/miuix/dokka/index.html
   ZToolLogo.png
   ZToolLogoForeground.svg
   ZToolUploadKey.jks            Release signing file; do not touch casually
-  更新日志.txt
+  CHANGELOG.md
 ```
 
 The Android module has this high-level shape:

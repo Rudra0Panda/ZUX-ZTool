@@ -9,8 +9,8 @@ import com.qimian233.ztool.hook.base.AppHookModule
 import io.github.libxposed.api.XposedModuleInterface.PackageLoadedParam
 
 /**
- * 跳过包安装器警告页面Hook模块
- * 自动点击安装按钮，跳过用户确认步骤
+ * Skip package installer warning page Hook module.
+ * Automatically clicks the install button, skipping user confirmation steps.
  */
 @SuppressLint("PrivateApi")
 class SkipInstallWarnPage : AppHookModule() {
@@ -27,7 +27,7 @@ class SkipInstallWarnPage : AppHookModule() {
 
     private fun hookPackageInstallerActivity(classLoader: ClassLoader) {
         try {
-            // Hook onResume 方法，在界面显示后执行
+            // Hook onResume method to execute after UI is displayed
             val activityExtraClass = classLoader.loadClass(
                 "com.android.packageinstaller.PackageInstallerActivityExtra"
             )
@@ -36,15 +36,15 @@ class SkipInstallWarnPage : AppHookModule() {
                 val result = chain.proceed()
                 val activity = chain.thisObject
 
-                // 延迟执行，确保界面完全加载
+                // Delay execution to ensure UI is fully loaded
                 Handler(Looper.getMainLooper()).postDelayed({
                     try {
-                        // 直接调用 handleDirectInstallInFindSameAppCase 方法
+                        // Call handleDirectInstallInFindSameAppCase method directly
                         activity.javaClass.getDeclaredMethod("handleDirectInstallInFindSameAppCase")
                             .invoke(activity)
                         logger.debug("Successfully called handleDirectInstallInFindSameAppCase")
                     } catch (_: Exception) {
-                        // 如果上面的方法不存在，尝试调用 onDirectInstall 方法
+                        // If above method does not exist, try calling onDirectInstall method
                         try {
                             activity.javaClass.getDeclaredMethod("onDirectInstall")
                                 .invoke(activity)
@@ -53,7 +53,7 @@ class SkipInstallWarnPage : AppHookModule() {
                             logger.error("Both installation methods failed", e2)
                         }
                     }
-                }, 50) // 立刻执行
+                }, 50) // Execute immediately
                 result
             }
 

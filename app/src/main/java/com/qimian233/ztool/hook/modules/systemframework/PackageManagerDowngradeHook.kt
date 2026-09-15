@@ -6,10 +6,10 @@ import com.qimian233.ztool.hook.base.SystemHookModule
 import io.github.libxposed.api.XposedModuleInterface.SystemServerStartingParam
 
 /**
- * 允许降级安装：短路 PackageManagerServiceUtils.checkDowngrade。
+ * Allow downgrade installation: Short-circuits PackageManagerServiceUtils.checkDowngrade.
  *
- * Android 16 上该方法存在三个以 PackageInfoLite 结尾的 void 重载，
- * 全部拦截后 versionCode 比较不再抛出 INSTALL_FAILED_VERSION_DOWNGRADE。
+ * On Android 16, this method has three void overloads ending with PackageInfoLite;
+ * intercepting all of them prevents versionCode comparison from throwing INSTALL_FAILED_VERSION_DOWNGRADE.
  */
 class PackageManagerDowngradeHook : SystemHookModule() {
 
@@ -33,7 +33,7 @@ class PackageManagerDowngradeHook : SystemHookModule() {
             }
             overloads.forEachIndexed { index, method ->
                 hookWithId(method, "pkgmgr_check_downgrade_$index") { _ ->
-                    // 直接跳过 versionCode 比较逻辑
+                    // Skip versionCode comparison logic directly
                     null
                 }
             }

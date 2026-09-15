@@ -15,8 +15,8 @@ import com.qimian233.ztool.R
 import com.qimian233.ztool.dexindex.base.DexIndexProgress
 
 /**
- * DexKit 索引进度 Dialog：scope 级进度条 + "第 x / 共 xx 个作用域" 文本。
- * 主页进入判定（Non-firstrun 过期刷新）与设置页手动刷新共用。
+ * DexKit indexing progress Dialog: scope-level progress bar + "Scope x of xx" text.
+ * Shared by home screen entry checks (non-firstrun expired refresh) and settings manual refresh.
  */
 @Composable
 fun DexIndexProgressDialog(

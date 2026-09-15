@@ -6,13 +6,13 @@ import com.qimian233.ztool.hook.base.SystemHookModule
 import io.github.libxposed.api.XposedModuleInterface.SystemServerStartingParam
 
 /**
- * 绕过签名身份（digest）比对：
- * - SigningDetails.checkCapability / checkCapabilityRecover 对非 PERMISSION/APPLICATION
- *   能力位恒真（保留能力位判断以防误授特权权限）
- * - KeySetManagerService 升级 KeySet 校验在安装链路上恒通过
- * - InstallPackageHelper.doesSignatureMatchForPermissions 在"沿用旧签名"时放行同名包
- * - StrictJarVerifier.verifyBytes 在未启用"沿用旧签名"时直接从签名块提取证书链
- * - hasCommonAncestor 在 verifySignatures 调用链上放行 sharedUser 谱系校验
+ * Bypass signature identity (digest) comparison:
+ * - SigningDetails.checkCapability / checkCapabilityRecover constantly returns true for non-PERMISSION/APPLICATION
+ *   capability bits (preserves capability checks to prevent granting privileged permissions by mistake)
+ * - KeySetManagerService upgrade KeySet verification constantly passes on install path
+ * - InstallPackageHelper.doesSignatureMatchForPermissions allows same-package apps when "use previous signatures" is active
+ * - StrictJarVerifier.verifyBytes extracts cert chain directly from signature block when "use previous signatures" is disabled
+ * - hasCommonAncestor passes sharedUser lineage validation on verifySignatures call chain
  */
 class PackageManagerDigestBypassHook : SystemHookModule() {
 
@@ -87,8 +87,8 @@ class PackageManagerDigestBypassHook : SystemHookModule() {
                     it.returnType == Boolean::class.javaPrimitiveType
             }
             hookWithId(shouldCheck, "pkgmgr_should_check_upgrade_keyset") { chain ->
-                // 栈锚点限定在安装链路（preparePackage / reconcileInstallPackages），
-                // 避免影响设置读取等其他调用方
+                // Limit stack anchor to install call chains (preparePackage / reconcileInstallPackages),
+                // to avoid affecting settings reads and other callers
                 if (callStackContains("preparePackage", "reconcileInstallPackages",
                         "preparePackageLI", "installPackageLI")
                 ) {
@@ -125,7 +125,7 @@ class PackageManagerDigestBypassHook : SystemHookModule() {
             hookWithId(doesSignatureMatch, "pkgmgr_dosignature_match_for_permissions") { chain ->
                 val original = chain.proceed()
                 if (!usePreviousSignatures) return@hookWithId original
-                // 只对同名包放行，防止冒充其他应用
+                // Only allow same-name package to prevent spoofing other apps
                 if (original == false) {
                     val packageName = chain.getArg(1).javaClass
                         .methods.first { it.name == "getPackageName" }
@@ -161,7 +161,7 @@ class PackageManagerDigestBypassHook : SystemHookModule() {
 
             hookWithId(verifyBytes, "pkgmgr_jar_verify_bytes") { chain ->
                 val original = chain.proceed()
-                // 绕过摘要时签名块字节可能已损坏，直接按 PKCS7 结构解析证书链
+                // When bypassing digest, signature block bytes may be corrupted; parse cert chain directly via PKCS7 structure
                 try {
                     val block = pkcs7Ctor.newInstance(chain.getArg(0))
                     val signerInfos = getSignerInfos.invoke(block) as Array<*>
@@ -194,7 +194,7 @@ class PackageManagerDigestBypassHook : SystemHookModule() {
     }
 
     private fun isCapabilityFlagProtected(flags: Any?): Boolean {
-        // 4 = PERMISSION, 16 = APPLICATION：放行会导致签名权限误授，保持原判定
+        // 4 = PERMISSION, 16 = APPLICATION: allowing them could lead to falsely granted signature permissions, keep original
         val flag = (flags as? Int) ?: return true
         return flag == 4 || flag == 16
     }

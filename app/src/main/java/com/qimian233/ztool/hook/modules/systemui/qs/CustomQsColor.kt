@@ -108,12 +108,12 @@ class CustomQsColor : AppHookModule() {
         }
     }
 
-    private var customQsColor = false // 是否启用磁贴背景色修改
-    private var customLabelColor = false // 是否启用磁贴主要说明文本在开关被启用时的颜色修改
-    private var customSecondLabelColor = false // 是否启用磁贴次要说明文本在开关被启用后的颜色修改
-    private var customQsActiveColorVal = 0 // 磁贴背景色，AARRGGBB 格式，在存储时要通过 Color.argb() 提前转化好
-    private var customLabelActiveColorVal = 0 // 主要说明文本激活时的颜色，在存储时要通过 Color.argb() 提前转化好
-    private var customSecondLabelActiveColorVal = 0 // 次要说明文本激活时的颜色，在存储时要通过 Color.argb() 提前转化好
+    private var customQsColor = false // Whether to enable tile background color modification
+    private var customLabelColor = false // Whether to enable tile primary label color modification when switch is enabled
+    private var customSecondLabelColor = false // Whether to enable tile secondary label color modification after switch is enabled
+    private var customQsActiveColorVal = 0 // Tile background color in AARRGGBB format, must be converted beforehand via Color.argb() when storing
+    private var customLabelActiveColorVal = 0 // Primary label color when active, must be converted beforehand via Color.argb() when storing
+    private var customSecondLabelActiveColorVal = 0 // Secondary label color when active, must be converted beforehand via Color.argb() when storing
 
     companion object {
         private const val STATE_ACTIVE = 2

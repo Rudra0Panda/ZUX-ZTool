@@ -6,9 +6,9 @@ import com.qimian233.ztool.hook.base.SystemHookModule
 import io.github.libxposed.api.XposedModuleInterface.SystemServerStartingParam
 
 /**
- * 绕过 resources.arsc 存储限制：
- * AssetManager.containsAllocatedTable 恒返 false，
- * 允许 targetSdk R+ 且 resources.arsc 未按未压缩对齐要求打包的 APK 安装与加载。
+ * Bypass resources.arsc storage restrictions:
+ * AssetManager.containsAllocatedTable constantly returns false,
+ * allowing targetSdk R+ APKs whose resources.arsc does not meet uncompressed alignment requirements to install and load.
  */
 class PackageManagerArscBypassHook : SystemHookModule() {
 

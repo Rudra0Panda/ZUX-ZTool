@@ -15,25 +15,25 @@ import io.github.libxposed.api.XposedModuleInterface
 import java.io.File
 
 /**
- * 桌面动态壁纸 — 技术验证 Hook（MediaCodec Surface 直渲版）。
+ * Desktop live wallpaper - Proof of concept hook (MediaCodec direct Surface rendering).
  *
- * 劫持 ImageWallpaper.CanvasEngine：
- * - Hook onSurfaceCreated → 获取 Engine 自己的 Surface
- * - Hook drawFrameOnCanvas → 阻止静态 bitmap 渲染
- * - 用 MediaCodec 直接解码视频到 Engine 的 Surface（零拷贝）
- * - 视频播放完毕后自动循环
- * - 方向变化走 CanvasEngine 的 DisplayListener.onDisplayChanged 回调
- *   （SystemUI 壁纸自身的通知机制），另挂 onConfigurationChanged /
- *   onSurfaceChanged 兜底：按新方向重新选视频，
- *   该方向无对应视频时停止播放并主动触发 SystemUI 重绘，
- *   重新显示静态壁纸（严格匹配，不跨方向回退）
+ * Hijacks ImageWallpaper.CanvasEngine:
+ * - Hook onSurfaceCreated -> obtain Engine's own Surface
+ * - Hook drawFrameOnCanvas -> block static bitmap rendering
+ * - Use MediaCodec to decode video directly to Engine's Surface (zero copy)
+ * - Auto-loop after video playback finishes
+ * - Orientation changes handled via CanvasEngine DisplayListener.onDisplayChanged callback
+ *   (SystemUI wallpaper's own notification mechanism), with onConfigurationChanged /
+ *   onSurfaceChanged fallbacks: reselects video based on new orientation;
+ *   stops playback and actively triggers SystemUI redraw when that orientation has no corresponding video,
+ *   redisplaying static wallpaper (strict match, no cross-orientation fallback)
  *
- * 视频文件路径：
- *   /sdcard/Download/ZTool/wallpaper_portrait.mp4  (竖屏)
- *   /sdcard/Download/ZTool/wallpaper_land.mp4       (横屏)
+ * Video file paths:
+ *   /sdcard/Download/ZTool/wallpaper_portrait.mp4  (Portrait)
+ *   /sdcard/Download/ZTool/wallpaper_land.mp4      (Landscape)
  *
- * getModuleName() 返回 PreferenceKeys.DESKTOP_LIVE_WALLPAPER.name，
- * 由前端开关控制启用。
+ * getModuleName() returns PreferenceKeys.DESKTOP_LIVE_WALLPAPER.name,
+ * enabled via frontend toggle.
  */
 @SuppressLint("PrivateApi")
 class DesktopLiveWallpaperHook : AppHookModule() {
@@ -46,19 +46,19 @@ class DesktopLiveWallpaperHook : AppHookModule() {
         private const val VIDEO_PORTRAIT = "wallpaper_portrait.mp4"
         private const val VIDEO_LAND = "wallpaper_land.mp4"
         private const val DECODE_TIMEOUT_US = 10_000L
-        // 视频显示模式偏好值（与前端下拉选项一一对应）
+        // Video display mode preference value (corresponds 1:1 with frontend dropdown options)
         private const val SCALE_MODE_FIT = "fit"
         private const val SCALE_MODE_COVER = "cover"
     }
 
-    // 每个 Engine 实例一份的播放状态
+    // Playback state per Engine instance
     private var codec: MediaCodec? = null
     private var extractor: MediaExtractor? = null
     private var decodeThread: Thread? = null
     @Volatile private var running = false
     private var engineSurface: Surface? = null
     private var reportedShown = false
-    // 当前生效的屏幕方向（用于方向切换时判断是否需要重新选视频）
+    // Currently active screen orientation (used to determine whether to reselect video on orientation change)
     private var currentOrientation = Configuration.ORIENTATION_UNDEFINED
 
     override fun getModuleName(): String = PreferenceKeys.DESKTOP_LIVE_WALLPAPER.name
@@ -71,7 +71,7 @@ class DesktopLiveWallpaperHook : AppHookModule() {
         try {
             val engineClass = param.defaultClassLoader.loadClass(ENGINE_CLASS)
 
-            // ① onSurfaceCreated → 获取 Surface，启动播放
+            // 1. onSurfaceCreated -> obtain Surface, start playback
             hookWithId(
                 engineClass.getDeclaredMethod("onSurfaceCreated", SurfaceHolder::class.java),
                 "dynwall_surface_created"
@@ -80,7 +80,7 @@ class DesktopLiveWallpaperHook : AppHookModule() {
                 onSurfaceReady(chain.thisObject)
             }
 
-            // ② drawFrameOnCanvas → 播放中阻止静态图覆盖视频帧
+            // 2. drawFrameOnCanvas -> block static image covering video frame during playback
             hookWithId(
                 engineClass.getDeclaredMethod("drawFrameOnCanvas", android.graphics.Bitmap::class.java),
                 "dynwall_draw_frame"
@@ -88,7 +88,7 @@ class DesktopLiveWallpaperHook : AppHookModule() {
                 if (!running) it.proceed() else null
             }
 
-            // ③ onSurfaceDestroyed → 清理
+            // 3. onSurfaceDestroyed -> cleanup
             hookWithId(
                 engineClass.getDeclaredMethod("onSurfaceDestroyed", SurfaceHolder::class.java),
                 "dynwall_surface_destroyed"
@@ -97,7 +97,7 @@ class DesktopLiveWallpaperHook : AppHookModule() {
                 chain.proceed()
             }
 
-            // ④ onDisplayChanged → 方向/显示变化（SystemUI 壁纸自身的通知路径，旋转必触发）
+            // 4. onDisplayChanged -> orientation/display change (SystemUI wallpaper's own notification path, always triggered on rotation)
             try {
                 hookWithId(
                     engineClass.getDeclaredMethod(
@@ -113,8 +113,8 @@ class DesktopLiveWallpaperHook : AppHookModule() {
                 logger.error("DesktopLiveWallpaper: failed to hook onDisplayChanged", t)
             }
 
-            // ⑤ onConfigurationChanged → framework 分发兜底（部分 ROM 路径）
-            // 用 getMethod 找继承的 public 方法，兼容 CanvasEngine 未覆写的情况
+            // 5. onConfigurationChanged -> framework dispatch fallback (some ROM paths)
+            // Use getMethod to find inherited public method, compatible with CanvasEngine not overriding it
             try {
                 hookWithId(
                     engineClass.getMethod("onConfigurationChanged", Configuration::class.java),
@@ -127,7 +127,7 @@ class DesktopLiveWallpaperHook : AppHookModule() {
                 logger.error("DesktopLiveWallpaper: failed to hook onConfigurationChanged", t)
             }
 
-            // ⑥ onSurfaceChanged → Surface 尺寸变化兜底（旋转通常伴随宽高互换）
+            // 6. onSurfaceChanged -> Surface dimension change fallback (rotation usually accompanied by width/height swap)
             try {
                 hookWithId(
                     engineClass.getDeclaredMethod(
@@ -152,7 +152,7 @@ class DesktopLiveWallpaperHook : AppHookModule() {
         }
     }
 
-    // ── Surface 就绪 ──────────────────────────────────────────
+    // ── Surface Ready ──────────────────────────────────────────
 
     private fun onSurfaceReady(engine: Any) {
         stopPlayback()
@@ -176,8 +176,8 @@ class DesktopLiveWallpaperHook : AppHookModule() {
     }
 
     /**
-     * 从 engine 实时解析当前有效的 Surface（避免缓存失效）。
-     * mSurfaceHolder 缺失或 Surface 无效（isValid == false）时返回 null。
+     * Resolve currently valid Surface in real-time from engine (prevents cache invalidation).
+     * Returns null if mSurfaceHolder is missing or Surface is invalid (isValid == false).
      */
     private fun resolveSurface(engine: Any): Surface? {
         return try {
@@ -191,8 +191,8 @@ class DesktopLiveWallpaperHook : AppHookModule() {
     }
 
     /**
-     * 检测 Engine 当前绑定的 display 方向。
-     * 反射失败时返回 ORIENTATION_UNDEFINED，调用方按竖屏处理。
+     * Detect display orientation currently bound to Engine.
+     * Returns ORIENTATION_UNDEFINED on reflection failure, caller treats as portrait.
      */
     private fun detectOrientation(engine: Any): Int {
         return try {
@@ -207,20 +207,20 @@ class DesktopLiveWallpaperHook : AppHookModule() {
     }
 
     /**
-     * 严格匹配：只返回当前方向对应的视频路径。
-     * 该方向视频不存在时返回 null（不跨方向回退），调用方应保持静态壁纸。
+     * Strict matching: only return video path corresponding to current orientation.
+     * Returns null when video for that orientation does not exist (no cross-orientation fallback); caller should retain static wallpaper.
      */
     private fun videoPathFor(orientation: Int): String? {
         val baseDir = Environment.getExternalStorageDirectory().path + CUSTOM_VIDEO_DIR
         val fileName = when (orientation) {
             Configuration.ORIENTATION_LANDSCAPE -> VIDEO_LAND
-            else -> VIDEO_PORTRAIT // 未定义/未知方向按竖屏处理
+            else -> VIDEO_PORTRAIT // Undefined/unknown orientation treated as portrait
         }
         val path = "$baseDir/$fileName"
         return if (File(path).exists()) path else null
     }
 
-    // ── 播放控制 ──────────────────────────────────────────────
+    // ── Playback Control ──────────────────────────────────────────────
 
     private fun startPlayback(engine: Any, videoPath: String) {
         try {
@@ -242,7 +242,7 @@ class DesktopLiveWallpaperHook : AppHookModule() {
             extractor.selectTrack(trackIndex)
 
             val codec = MediaCodec.createDecoderByType(mime)
-            // Surface 可能已失效，configure 前再校验一次，避免 native_configure 抛异常
+            // Surface may have been invalidated; verify again before configure to avoid native_configure exception
             val surface = engineSurface
             if (surface == null || !surface.isValid) {
                 logger.error("DesktopLiveWallpaper: invalid surface, abort playback")
@@ -270,12 +270,12 @@ class DesktopLiveWallpaperHook : AppHookModule() {
     }
 
     /**
-     * 根据用户偏好设置视频在 Surface 上的显示模式（MediaCodec surface 输出官方缩放模式）：
-     * - fit   → VIDEO_SCALING_MODE_SCALE_TO_FIT（保持宽高比，完整显示，可能留黑边）
-     * - cover → VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING（等比裁剪铺满全屏，无黑边不变形）
+     * Sets video display mode on Surface based on user preference (MediaCodec surface output official scaling modes):
+     * - fit   -> VIDEO_SCALING_MODE_SCALE_TO_FIT (maintain aspect ratio, full display, may have black borders)
+     * - cover -> VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING (proportional cropping fills entire screen, no black borders, no distortion)
      *
-     * 偏好值由前端下拉选择写入 xposed_module_config。
-     * 未知值不调用（保持系统默认行为）；失败仅记录日志，不影响播放。
+     * Preference value is written to xposed_module_config from frontend dropdown.
+     * Unknown values are not called (maintaining system default behavior); failures only logged, not affecting playback.
      */
     private fun applyVideoScalingMode(codec: MediaCodec) {
         try {
@@ -300,8 +300,8 @@ class DesktopLiveWallpaperHook : AppHookModule() {
     }
 
     /**
-     * 停止播放。默认同时清空 engineSurface；
-     * 方向切换等 Surface 仍然有效的场景传 clearSurface = false 保留 Surface 以便复用。
+     * Stop playback. Clears engineSurface by default;
+     * scenarios where Surface remains valid like orientation change pass clearSurface = false to retain Surface for reuse.
      */
     private fun stopPlayback(clearSurface: Boolean = true) {
         running = false
@@ -320,7 +320,7 @@ class DesktopLiveWallpaperHook : AppHookModule() {
         extractor = null
     }
 
-    // ── 解码循环（在专用线程上运行） ──────────────────────────
+    // ── Decoding Loop (runs on dedicated thread) ──────────────────────────
 
     private fun decodeLoop(engine: Any) {
         val extractor = extractor ?: return
@@ -328,13 +328,13 @@ class DesktopLiveWallpaperHook : AppHookModule() {
         val bufInfo = MediaCodec.BufferInfo()
         var inputEos = false
 
-        // 帧间隔控制：按视频时间戳同步播放速度
-        var lastPtsUs = -1L           // 上一帧的 presentationTimeUs（-1 表示无上一帧）
-        var lastRenderNanos = 0L      // 上一帧渲染完成的 System.nanoTime()
+        // Frame interval control: synchronize playback speed based on video timestamps
+        var lastPtsUs = -1L           // presentationTimeUs of previous frame (-1 indicates no previous frame)
+        var lastRenderNanos = 0L      // System.nanoTime() when previous frame rendering completed
 
         try {
             while (running && !Thread.interrupted()) {
-                // 喂数据
+                // Feed data
                 if (!inputEos) {
                     val inIdx = codec.dequeueInputBuffer(DECODE_TIMEOUT_US)
                     if (inIdx >= 0) {
@@ -351,7 +351,7 @@ class DesktopLiveWallpaperHook : AppHookModule() {
                     }
                 }
 
-                // 取输出 → 渲染到 Surface
+                // Get output -> render to Surface
                 val outIdx = codec.dequeueOutputBuffer(bufInfo, DECODE_TIMEOUT_US)
                 when {
                     outIdx >= 0 -> {
@@ -359,7 +359,7 @@ class DesktopLiveWallpaperHook : AppHookModule() {
                             (bufInfo.flags and MediaCodec.BUFFER_FLAG_CODEC_CONFIG) == 0
 
                         if (render) {
-                            // 按帧时间戳控制播放速率
+                            // Control playback rate based on frame timestamps
                             val ptsUs = bufInfo.presentationTimeUs
                             if (lastPtsUs >= 0) {
                                 val frameGapUs = ptsUs - lastPtsUs
@@ -368,7 +368,7 @@ class DesktopLiveWallpaperHook : AppHookModule() {
                                     val elapsedNanos = nowNanos - lastRenderNanos
                                     val targetNanos = frameGapUs * 1000L // μs → ns
                                     val sleepNanos = targetNanos - elapsedNanos
-                                    if (sleepNanos > 500_000L) { // >0.5ms 才睡，避免忙等
+                                    if (sleepNanos > 500_000L) { // Only sleep if >0.5ms to avoid busy waiting
                                         Thread.sleep(
                                             sleepNanos / 1_000_000L,
                                             (sleepNanos % 1_000_000L).toInt()
@@ -395,32 +395,32 @@ class DesktopLiveWallpaperHook : AppHookModule() {
                             extractor.seekTo(0, MediaExtractor.SEEK_TO_CLOSEST_SYNC)
                             codec.flush()
                             inputEos = false
-                            lastPtsUs = -1L // 循环后重置，第一帧不等待
+                            lastPtsUs = -1L // Reset after loop, first frame does not wait
                         }
                     }
                     outIdx == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> { /* ignore */ }
                 }
             }
         } catch (_: InterruptedException) {
-            // 正常的停止信号
+            // Normal stop signal
         } catch (t: Throwable) {
             if (running) logger.error("DesktopLiveWallpaper: decode error", t)
         }
     }
 
-    // ── 方向切换 ──────────────────────────────────────────────
+    // ── Orientation Switch ──────────────────────────────────────────────
 
     /**
-     * 方向/显示变化统一入口（onDisplayChanged / onConfigurationChanged / onSurfaceChanged 共用）：
-     * 重新检测方向，与当前生效方向不同时按新方向选择视频。
-     * - 新方向有对应视频 → 停止旧播放并切换（Surface 复用，不重建）
-     * - 新方向无对应视频 → 停止播放，回退静态壁纸（drawFrameOnCanvas 恢复 proceed）
+     * Unified entry point for orientation/display changes (shared by onDisplayChanged / onConfigurationChanged / onSurfaceChanged):
+     * Re-detects orientation, reselects video based on new orientation if different from current active orientation.
+     * - New orientation has corresponding video -> stop old playback and switch (Surface reused, not recreated)
+     * - New orientation has no video -> stop playback, fallback to static wallpaper (drawFrameOnCanvas resumes proceed)
      */
     private fun refreshOrientationAndPlayback(engine: Any) {
         val orientation = detectOrientation(engine)
         if (orientation == currentOrientation) return
         currentOrientation = orientation
-        // Surface 尚未就绪（engine 刚创建）时，等待 onSurfaceCreated 再解析
+        // Surface not yet ready (engine just created); wait for onSurfaceCreated to resolve
         if (engineSurface == null) return
 
         val videoPath = videoPathFor(orientation)
@@ -429,13 +429,13 @@ class DesktopLiveWallpaperHook : AppHookModule() {
                 "DesktopLiveWallpaper: no video for orientation $orientation, fallback to static"
             )
             stopPlayback(clearSurface = false)
-            // 清掉 Surface 上残留的视频最后一帧，重新显示静态壁纸
+            // Clear remaining last video frame from Surface, redisplay static wallpaper
             redrawStaticWallpaper(engine)
             return
         }
 
-        // Surface 可能已随方向变化失效（onSurfaceDestroyed 尚未回调），
-        // 重新实时解析；无效则跳过本次切换，等 onSurfaceCreated / 下一次回调再触发
+        // Surface may have been invalidated with orientation change (onSurfaceDestroyed not yet called);
+        // re-resolve in real time; skip this switch if invalid, wait for onSurfaceCreated / next callback
         engineSurface = resolveSurface(engine)
         if (engineSurface == null) {
             logger.warn(
@@ -452,13 +452,13 @@ class DesktopLiveWallpaperHook : AppHookModule() {
     }
 
     /**
-     * fallback 到静态壁纸时，主动触发 SystemUI 的重绘，
-     * 清掉 Surface 上残留的视频最后一帧。
+     * Actively trigger SystemUI redraw when falling back to static wallpaper,
+     * clearing the residual last video frame on Surface.
      *
-     * CanvasEngine 的重绘入口（onSurfaceRedrawNeeded → mLongExecutor）
-     * 带 `if (!mDrawn)` 检查，静态壁纸画过后 mDrawn=true 会被跳过；
-     * 因此这里先重置 mDrawn=false，再在 mLock 同步下直接调用
-     * drawFrameInternal()（内部经 drawFrameOnCanvas 绘制静态 bitmap）。
+     * CanvasEngine redraw entry point (onSurfaceRedrawNeeded -> mLongExecutor)
+     * contains `if (!mDrawn)` check; mDrawn=true after static wallpaper was drawn and would be skipped;
+     * therefore reset mDrawn=false first, then invoke drawFrameInternal() directly under mLock synchronization
+     * (internally calls drawFrameOnCanvas to draw static bitmap).
      */
     private fun redrawStaticWallpaper(engine: Any) {
         try {
@@ -478,7 +478,7 @@ class DesktopLiveWallpaperHook : AppHookModule() {
         }
     }
 
-    // ── 辅助 ──────────────────────────────────────────────────
+    // ── Helper ──────────────────────────────────────────────────
 
     private fun reportEngineShown(engine: Any) {
         try {

@@ -1,28 +1,28 @@
-# 新 Hook 前端接入指南
+# Guide to Adding Frontend Settings for Hooks
 
-> 本文面向**应用侧 Compose 设置页**的配置接入。后端 Hook 实现请阅读 **[Add_New_Hook_Module.md](./Add_New_Hook_Module.md)**；偏好键集中管理请阅读根目录 **[Add_New_Preference_Key_zh-CN.md](../preference_key/Add_New_Preference_Key_zh-CN.md)**。
+> This guide focuses on adding configuration items within the **app-side Compose settings screens**. For backend Hook implementation, see **[Add_New_Hook_Module.md](./Add_New_Hook_Module.md)**; for centralized preference keys, see **[Add_New_Preference_Key_zh-CN.md](../preference_key/Add_New_Preference_Key_zh-CN.md)**.
 >
-> 偏好键管理已集中化：所有偏好键必须先在 `PreferenceKeys.kt` 中注册，然后通过 `PreferenceKeys.CONSTANT_NAME.name` 引用；作用域包名统一由 `ScopeKeys` 管理，通过 `ScopeKeys.CONSTANT.packageName` 引用。手写键名/包名字符串不再推荐。
+> Preference key management is centralized: all preference keys must be registered in `PreferenceKeys.kt` first and referenced via `PreferenceKeys.CONSTANT_NAME.name`. Target package names are managed centrally by `ScopeKeys` and referenced via `ScopeKeys.CONSTANT.packageName`. Manually written strings are deprecated.
 
-本文说明在 ZUX-ZTool 中为新的 Hook 功能接入前端配置项的推荐做法，重点覆盖 SharedPreferences、开关项和其它自定义控件。
+This document describes recommended practices for adding frontend configuration items for new Hooks in ZUX-ZTool, covering SharedPreferences, toggle switches, and other custom UI controls.
 
-## 基本原则
+## Core Principles
 
-1. 前端不要直接在 Composable 中读写 SharedPreferences。配置读写应放在 `data/**/**Repository.kt`，页面只消费 `UiState` 并调用 ViewModel 方法。
-2. Hook 相关配置统一使用 `ModulePreferencesUtils` 写入 `xposed_module_config`。不要为 Hook 开关新增独立 SharedPreferences 文件，除非确实不是 Hook 配置。
-3. 新增配置键必须和 Hook 侧读取的键完全一致，包括大小写。已有键不得重命名。
-4. 默认值必须前端和 Hook 侧一致。前端显示默认关闭，Hook 侧却默认开启，会造成未打开页面时行为不一致。
-5. 修改功能页 UI 后建议运行 `.\gradlew.bat assembleDebug`。新增文档或完成用户指定任务后，按项目要求提交。
+1. Never read or write SharedPreferences directly inside Composable functions. Data persistence belongs in `data/**/**Repository.kt`. UI screens should only consume `UiState` and invoke ViewModel functions.
+2. Hook-related configurations must use `ModulePreferencesUtils` targeting `xposed_module_config`. Do not create separate SharedPreferences files for Hook toggles.
+3. Added configuration keys must strictly match the keys read by the Hook side, including casing. Never rename existing keys.
+4. Default values must align between the frontend and the Hook side. If the frontend defaults to false but the Hook defaults to true, inconsistencies will occur before the user opens the settings page.
+5. After modifying feature UI, verify with `./gradlew assembleDebug`.
 
-## SharedPrefs 处理
+## Working with Shared Preferences
 
-应用侧 Hook 配置使用：
+App-side Hook configurations use:
 
 ```kotlin
 private val prefsUtils = ModulePreferencesUtils(context)
 ```
 
-`ModulePreferencesUtils` 默认读写模块包 `com.qimian233.ztool` 下的 `xposed_module_config`，并提供以下常用方法：
+`ModulePreferencesUtils` targets `xposed_module_config` under the module package `com.qimian233.ztool` by default and provides common helper methods:
 
 ```kotlin
 prefsUtils.loadBooleanSetting(KEY, false)
@@ -38,7 +38,7 @@ prefsUtils.loadFloatSetting(KEY, defaultValue)
 prefsUtils.saveFloatSetting(KEY, value)
 ```
 
-**键名必须通过 `PreferenceKeys` 常量引用**，不再手写字符串字面量。新键需先在 `PreferenceKeys.kt` 中注册（参见 `Add_New_Preference_Key_zh-CN.md`），然后在 Repository 的 `companion object` 中引用：
+**Key names must be referenced via `PreferenceKeys` constants** instead of hardcoded strings. Register new keys in `PreferenceKeys.kt` first, then reference them in the Repository's `companion object`:
 
 ```kotlin
 class ExampleSettingsRepository(
@@ -66,16 +66,16 @@ class ExampleSettingsRepository(
         const val LEVEL_MAX = 10
         private const val DEFAULT_LEVEL = 5
 
-        // 使用 PreferenceKeys 常量，不再手写字符串
+        // Reference PreferenceKeys constants rather than hardcoded strings
         private val KEY_NEW_HOOK_ENABLED = PreferenceKeys.NEW_HOOK_ENABLED.name
         private val KEY_CUSTOM_LEVEL = PreferenceKeys.NEW_HOOK_LEVEL.name
     }
 }
 ```
 
-> **注意：** 因为 `PreferenceKeys.CONSTANT.name` 不是编译期常量，`companion object` 中的声明需从 `const val` 改为 `val`。
+> **Note:** Because `PreferenceKeys.CONSTANT.name` is not a compile-time constant, companion object declarations must use `val` instead of `const val`.
 
-Hook 侧（Kotlin）读取时使用同一个常量：
+The Hook side (Kotlin) reads using the same constant:
 
 ```kotlin
 val prefs = remotePreferences
@@ -83,13 +83,13 @@ val enabled = prefs.getBoolean(PreferenceKeys.NEW_HOOK_ENABLED.name, PreferenceK
 val level = prefs.getInt(PreferenceKeys.NEW_HOOK_LEVEL.name, PreferenceKeys.NEW_HOOK_LEVEL.default)
 ```
 
-## 接入一个开关
+## Adding a Switch Setting
 
-一个普通 Hook 开关通常需要改四处：Repository、UiState、ViewModel、页面 section。
+Adding a standard Hook switch typically involves four places: Repository, UiState, ViewModel, and the screen section.
 
 ### 1. Repository
 
-在对应作用域的 Repository 中增加读取和保存方法。例如安全中心功能放在 `data/safecenter/SafeCenterSettingsRepository.kt`，桌面功能放在 `data/launcher/LauncherSettingsRepository.kt`。
+Add load and save methods in the corresponding scope Repository. For example, security center features go to `data/safecenter/SafeCenterSettingsRepository.kt`, launcher features to `data/launcher/LauncherSettingsRepository.kt`.
 
 ```kotlin
 fun loadState(): ExampleSettingsUiState {
@@ -105,7 +105,7 @@ fun saveNewHookEnabled(enabled: Boolean) {
 
 ### 2. UiState
 
-在对应 ViewModel 文件里的 UiState 增加状态字段：
+Add state properties in the UiState data class inside the ViewModel file:
 
 ```kotlin
 data class ExampleSettingsUiState(
@@ -115,7 +115,7 @@ data class ExampleSettingsUiState(
 
 ### 3. ViewModel
 
-ViewModel 负责先更新内存状态，再写入 Repository：
+The ViewModel updates state in memory first, then writes to the Repository:
 
 ```kotlin
 fun setNewHookEnabled(enabled: Boolean) {
@@ -124,9 +124,9 @@ fun setNewHookEnabled(enabled: Boolean) {
 }
 ```
 
-### 4. Compose 页面
+### 4. Compose Screen
 
-页面中使用 `SettingItem.Switch`。不要直接调用 `prefsUtils`。
+Use `SettingItem.Switch` on the UI screen. Never call `prefsUtils` directly.
 
 ```kotlin
 SettingItem.Switch(
@@ -138,30 +138,25 @@ SettingItem.Switch(
 )
 ```
 
-`key` 是 `SettingItem` 的**必填参数**，用于搜索落地高亮与索引对账：
+`key` is a **mandatory parameter** in `SettingItem`, used for search result highlighting and index reconciliation:
 
-- 新增的可见条目必须同时在 `search/SearchIndex.kt` 注册一个 `SearchEntry`，
-  其 `id` 与这里的 `key` 使用**完全相同的字符串**（通常直接复用
-  `PreferenceKeys` 常量名，如 `new_hook`）。
-- 纯装饰/说明行（不参与搜索）用 `deco_` 前缀；运行时动态生成的明细行用
-  `dyn_` 前缀，二者在 debug 索引对账（`SearchIndexAudit`）中豁免。
-- debug 构建下对账会在页面组合后检查"索引有但屏幕没渲染 / 屏幕渲染了但
-  索引没有"两类漂移并打 `Log.w`（tag `SearchIndexAudit`），新增条目时请
-  留意 Logcat 输出。
+- Visible items must also be registered as a `SearchEntry` in `search/SearchIndex.kt`, where `id` matches this `key` string **identically** (usually reusing the `PreferenceKeys` constant name, such as `new_hook`).
+- Purely decorative/header rows (exempt from search) use the `deco_` prefix; dynamically generated detail rows at runtime use the `dyn_` prefix. Both are exempted in debug index audits (`SearchIndexAudit`).
+- Debug builds check for index drift between registered entries and rendered items, logging warnings via tag `SearchIndexAudit`.
 
-页面函数参数也需要把事件一路传进来：
+Pass event handlers down through the Composable parameters:
 
 ```kotlin
 onNewHookEnabledChanged = viewModel::setNewHookEnabled
 ```
 
-## 添加其它自定义控件
+## Adding Other Custom Controls
 
-项目已有 `SettingItem` 模型，优先使用共享组件，避免在业务页面重复写样式。
+The project provides the `SettingItem` model. Use shared components to avoid repeating styling across feature screens.
 
-### 下拉选项
+### Dropdown Selection
 
-适合模式选择、策略选择、样式选择。使用 `SettingItem.Dropdown` 或现有 `ZToolPopupMenuSettingRow`。
+Ideal for mode selection, policies, or style selection. Use `SettingItem.Dropdown` or existing `ZToolPopupMenuSettingRow`.
 
 ```kotlin
 enum class NewHookMode {
@@ -171,7 +166,7 @@ enum class NewHookMode {
 }
 ```
 
-Repository 保存为字符串时，应显式转换，避免未来 enum 重命名破坏兼容：
+When saving as a string in the Repository, convert explicitly to safeguard against future enum renames:
 
 ```kotlin
 fun saveMode(mode: NewHookMode) {
@@ -184,7 +179,7 @@ private fun loadMode(): NewHookMode {
 }
 ```
 
-页面：
+UI:
 
 ```kotlin
 SettingItem.Dropdown(
@@ -196,11 +191,9 @@ SettingItem.Dropdown(
 )
 ```
 
-如果选项有较长说明，或需要和其它控件组合，可参考 `LauncherSettingsActivity.kt` 中 `ForceStopModeRow` 的写法。
+### Slider
 
-### 滑块
-
-适合有限范围的数值配置，例如行列数、尺寸、阈值。数值必须在 Repository 和 ViewModel 中做边界约束。
+Suitable for numeric configuration within a bounded range (e.g. grid counts, dimensions, thresholds). Enforce boundaries in Repository and ViewModel.
 
 ```kotlin
 SettingItem.Slider(
@@ -214,7 +207,7 @@ SettingItem.Slider(
 )
 ```
 
-Repository：
+Repository:
 
 ```kotlin
 fun saveCustomLevel(level: Int) {
@@ -222,9 +215,9 @@ fun saveCustomLevel(level: Int) {
 }
 ```
 
-### 文本输入
+### Text Input
 
-适合格式字符串、包名、API 地址、白名单等。使用 `SettingItem.TextInput`，并在保存前做必要的 trim、空值处理或格式校验。
+Suitable for pattern strings, package names, API endpoints, or whitelists. Use `SettingItem.TextInput`, trimming and validating input before saving.
 
 ```kotlin
 SettingItem.TextInput(
@@ -237,7 +230,7 @@ SettingItem.TextInput(
 )
 ```
 
-Repository：
+Repository:
 
 ```kotlin
 fun savePattern(pattern: String) {
@@ -245,9 +238,9 @@ fun savePattern(pattern: String) {
 }
 ```
 
-### 条件显示的子项
+### Conditionally Displayed Child Items
 
-当某个开关关闭时，其附属配置通常不要显示，或设置为 `enabled = false`。项目里常见写法是 `buildList`：
+When a parent switch is off, associated sub-settings should typically be hidden or disabled. Common pattern with `buildList`:
 
 ```kotlin
 val items = buildList {
@@ -273,9 +266,9 @@ val items = buildList {
 }
 ```
 
-### 完全自定义行
+### Fully Custom Rows
 
-当现有模型无法表达复杂交互时使用 `SettingItem.Custom`。例如应用选择器、复合滑块、带按钮的行。自定义行仍应使用 `MaterialTheme` 和项目共享组件，避免写死颜色和重复卡片。
+Use `SettingItem.Custom` when standard models cannot accommodate complex interactions (e.g. app pickers, composite sliders). Always use `MaterialTheme` and shared components.
 
 ```kotlin
 SettingItem.Custom(
@@ -288,89 +281,84 @@ SettingItem.Custom(
 )
 ```
 
-## 字符串和文案
+## Strings and Localization
 
-新增 UI 文案应写入 `app/src/main/res/values` 中的字符串资源文件，考虑 i18n，不要只写一个 strings.xml，页面中使用 `stringResource(R.string.xxx)`。不要在 Composable 中硬编码中文或英文文本，除非是调试临时内容。
+Add all UI strings to `app/src/main/res/values/strings.xml` (and `values-en-rUS/` / `values-zh-rCN/`), referencing them via `stringResource(R.string.xxx)`. Do not hardcode strings in Composables.
 
-推荐命名：
+Recommended naming:
 
 ```xml
-<string name="new_hook_title">新 Hook 功能</string>
-<string name="new_hook_summary">说明该功能影响的系统行为和生效条件。</string>
+<string name="new_hook_title">New Hook Feature</string>
+<string name="new_hook_summary">Explains the system behavior affected and requirements.</string>
 ```
 
-文案应写清楚：
+Clear documentation should state:
+1. Which app or system area is affected.
+2. Whether restarting the target app, SystemUI, or device is required.
+3. Whether Root, LSPosed scope, or specific OS versions are prerequisites.
 
-1. 功能影响哪个应用或系统区域。
-2. 是否需要重启目标应用、SystemUI 或系统。
-3. 是否依赖 Root、LSPosed 作用域或特定 ZUI/ZUX 版本。
+## Restart and Confirmation Prompts
 
-## 重启和生效提示
+Most Hook configurations do not immediately apply to already running processes. Screens provide a restart FAB in the bottom right, triggering `am force-stop` or similar commands via the Repository.
 
-大多数 Hook 配置不会立即影响已加载的目标进程。已有页面通常提供右下角刷新按钮，并通过 Repository 执行 `am force-stop` 或其它重启命令。
+If a new Hook belongs to an existing scope screen, reuse that screen's existing restart FAB and confirmation dialog. Do not prompt toasts or restart the app automatically on every switch toggle.
 
-如果新 Hook 属于已有作用域页面，优先复用该页面已有的重启按钮和确认弹窗。不要为每个开关都弹 Toast 或立即重启目标应用。
+If a new Hook requires a custom restart target:
+1. Encapsulate shell or root operations in the Repository.
+2. Expose `showRestartConfirmDialog`, `dismissRestartConfirmDialog`, and action functions in the ViewModel.
+3. The Composable is only responsible for rendering the confirmation dialog and showing toast feedback.
 
-如果新 Hook 需要特殊重启目标：
+## New Screen vs. Existing Screen
 
-1. 在 Repository 中封装 shell 或 root 操作。
-2. ViewModel 暴露 `showRestartConfirmDialog`、`dismissRestartConfirmDialog` 和执行方法。
-3. Composable 只负责显示确认弹窗和 Toast 结果。
+Prefer adding new Hooks to existing detail screens by scope:
 
-## 新页面还是加入已有页面
+| Hook Scope | Recommended Screen / Repository |
+|---|---|
+| `com.android.systemui` | `SystemUiSettingsRoute`, Status Bar, Control Center, or Lockscreen screens |
+| `com.zui.launcher` | `LauncherSettingsRoute` / `LauncherSettingsRepository` |
+| `com.lenovo.safecenter` / DocumentsUI | `SafeCenterSettingsRoute` / `SafeCenterSettingsRepository` |
+| `com.android.settings` | `SettingsDetailRoute` / `SettingsDetailRepository` |
+| `android` System Framework | `FrameworkSettingsRoute` / `FrameworkSettingsRepository` |
+| Package Installer | `PackageInstallerSettingsRoute` / `PackageInstallerSettingsRepository` |
+| Game Assistant | `GameToolSettingsRoute` / `GameToolSettingsRepository` |
+| OTA | `OtaSettingsRoute` / `OtaSettingsRepository` |
 
-优先把新 Hook 加到对应作用域的现有详情页：
+Only create a new Route when the feature involves an independent multi-step flow that cannot fit existing pages.
 
-| Hook 作用域                                 | 推荐页面/Repository                                                        |
-|------------------------------------------|------------------------------------------------------------------------|
-| `com.android.systemui`                   | `SystemUiSettingsRoute`、状态栏、控制中心或锁屏子页面                                 |
-| `com.zui.launcher`                       | `LauncherSettingsRoute` / `LauncherSettingsRepository`                 |
-| `com.lenovo.safecenter` 或 DocumentsUI 相关 | `SafeCenterSettingsRoute` / `SafeCenterSettingsRepository`             |
-| `com.android.settings`                   | `SettingsDetailRoute` / `SettingsDetailRepository`                     |
-| `android` 系统框架                           | `FrameworkSettingsRoute` / `FrameworkSettingsRepository`               |
-| 安装器                                      | `PackageInstallerSettingsRoute` / `PackageInstallerSettingsRepository` |
-| 游戏助手                                     | `GameToolSettingsRoute` / `GameToolSettingsRepository`                 |
-| OTA                                      | `OtaSettingsRoute` / `OtaSettingsRepository`                           |
+## Scope Management
 
-只有当新 Hook 有独立的复杂流程、多个子页面或已有页面无法合理承载时，再考虑新增 Route/Activity。保留 Manifest 中已有 Activity 的启动契约，不要随意改包名或类名。
+Target package names are **managed centrally by `ScopeKeys`** (`app/src/main/java/com/qimian233/ztool/data/keys/ScopeKeys.kt`). Avoid hardcoding package strings.
 
-## 作用域管理
+- `ScopeUtils.getScopes()` defines scopes per feature entry (package name + recommended restart method) using `ScopeKeys`.
+- Each `Scope` registers `HowToRestart` (`AmStop` / `KillAll` / `Reboot`), used by `ScopeUtils.restartScope()`.
+- Backend Hooks must reference `ScopeKeys.CONSTANT.packageName` in `getTargetPackages()`.
 
-Hook 的作用域包名**统一由 `ScopeKeys` 管理**（`app/src/main/java/com/qimian233/ztool/data/keys/ScopeKeys.kt`），不要在代码中手写包名字符串。
+When adding a new target package:
+1. Register in `ScopeKeys.kt` with its restart strategy.
+2. Reference `ScopeKeys.CONSTANT.packageName` in backend Hook `getTargetPackages()`.
+3. Add the package to build-time resource `scope.list` (LSPosed injection declaration).
 
-- `ScopeUtils.getScopes()` 集中定义每个功能入口的作用域列表（包名 + 推荐重启方式），引用 `ScopeKeys`；前端功能入口（`FeaturesRoute`、`MainActivity`）和各 Repository 的"重启作用域"逻辑也来自 `ScopeKeys` / `ScopeUtils`。
-- 每个 `Scope` 同时注册了 `HowToRestart`（`AmStop` / `KillAll` / `Reboot`），`ScopeUtils.restartScope()` 据此选择重启命令。
-- 后端 Hook 的 `getTargetPackages()` 必须返回 `ScopeKeys.CONSTANT.packageName` 引用（详见 `Add_New_Hook_Module.md`）。
+> Build-time files like `module.prop` and `scope.list` remain hardcoded. `scope.list` is a build-time declaration independent of `ScopeKeys`; both must be maintained.
 
-新增 Hook 目标包时按以下顺序处理：
+## Common Mistakes
 
-1. 在 `ScopeKeys.kt` 中注册新包名（含推荐重启方式）。
-2. 后端 Hook 的 `getTargetPackages()` 中引用 `ScopeKeys.CONSTANT.packageName`。
-3. 在构建期资源 `scope.list` 中添加该包名（LSPosed 注入声明）。
+1. Calling `context.getSharedPreferences(...)` directly in Composables: move to Repository.
+2. Using `apply()` on the frontend while the Hook reads immediately, resulting in race conditions: `ModulePreferencesUtils` uses `commit()`.
+3. Casing mismatches: `CustomGridSize` and `custom_grid_size` are different keys.
+4. Storing Hook configuration in theme or UI preferences: Hook configs must go through `ModulePreferencesUtils`.
+5. Updating UiState without saving to Repository: settings revert upon exiting screen.
+6. Saving to Repository without updating UiState: UI switch doesn't respond smoothly.
+7. Running Root/Shell commands directly in Composables: encapsulate in Repository.
 
-> `module.prop` 等构建期资源文件必须保持硬编码，不引用 `ScopeKeys`。`scope.list` 是构建期声明，与 `ScopeKeys` 相互独立，两个都要维护；用户还需在 LSPosed Manager 中勾选作用域。
+## Minimal Integration Checklist
 
-## 常见错误
-
-1. 在 Composable 中直接写 `context.getSharedPreferences(...)`：应移动到 Repository。
-2. 前端使用 `apply()`，Hook 侧马上读取导致时序不稳定：`ModulePreferencesUtils` 现有保存方法使用 `commit()`，新增保存逻辑应保持一致。
-3. 配置键大小写不一致：例如 `CustomGridSize` 和 `custom_grid_size` 是两个不同键。
-4. 把 Hook 配置写进主题或应用 UI 偏好：Hook 配置必须使用 `ModulePreferencesUtils`。
-5. 只更新 UiState 不保存 Repository，退出页面后丢失配置。
-6. 只保存 Repository 不更新 UiState，开关 UI 不跟手。
-7. 在页面中直接执行 Root/Shell：应由 Repository 封装，ViewModel 调用。
-
-## 最小接入清单
-
-新增一个 Hook 前端配置时，按以下顺序处理：
-
-1. 确定配置键、类型、默认值，并和 Hook 侧保持一致。
-2. 在对应 Repository 中加入 `loadState()` 字段读取和保存方法。
-3. 在对应 `UiState` 增加字段。
-4. 在 ViewModel 中增加 `setXxx(...)` 方法。
-5. 在设置页的 `SettingSection` 中加入 `SettingItem.Switch`、`Dropdown`、`Slider`、`TextInput` 或 `Custom`。
-6. 在 `PreferenceKeys.kt` 中注册新的偏好键，并在 Repository 和 Hook 中通过 `PreferenceKeys.CONSTANT_NAME.name` 引用。
-7. 如果新 Hook 的目标包尚未注册：在 `ScopeKeys.kt` 中注册该包，在 `getTargetPackages()` 中引用 `ScopeKeys`，并加入构建期 `scope.list`。
-8. 在 `strings.xml` 增加标题和说明。
-9. 如需重启，复用或补充该页面的重启确认流程。
-10. 运行 `.\gradlew.bat assembleDebug` 验证。
+1. Define configuration key, type, and default value, matching the Hook side.
+2. Add `loadState()` and save methods in the corresponding Repository.
+3. Add fields to `UiState`.
+4. Add `setXxx(...)` methods to ViewModel.
+5. Add `SettingItem.Switch`, `Dropdown`, `Slider`, `TextInput`, or `Custom` to the screen's `SettingSection`.
+6. Register preference keys in `PreferenceKeys.kt` and reference via `PreferenceKeys.CONSTANT_NAME.name`.
+7. If the target package is new: register in `ScopeKeys.kt`, reference in `getTargetPackages()`, and add to `scope.list`.
+8. Add title and summary strings to `strings.xml`.
+9. Reuse or add restart confirmation flows if needed.
+10. Verify via `./gradlew assembleDebug`.

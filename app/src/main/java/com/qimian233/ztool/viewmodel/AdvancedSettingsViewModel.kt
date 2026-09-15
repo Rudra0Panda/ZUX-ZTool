@@ -28,7 +28,7 @@ class AdvancedSettingsViewModel(
     val dexIndexState: StateFlow<DexIndexRefreshUiState> = _dexIndexState.asStateFlow()
 
     init {
-        // DexKit 索引进度热更新，供进度 Dialog 实时展示
+        // Live update of DexKit indexing progress for real-time display in progress dialog
         viewModelScope.launch {
             DexIndexManager.progress.collect { p ->
                 _dexIndexState.value = _dexIndexState.value.copy(progress = p)
@@ -84,10 +84,10 @@ class AdvancedSettingsViewModel(
         }
         repository.performHotReloadAll(
             onProgress = { target, result ->
-                Log.d(TAG, "热重载: ${target.processName} -> ${result.status()} ${result.message() ?: ""}")
+                Log.d(TAG, "Hot reload: ${target.processName} -> ${result.status()} ${result.message() ?: ""}")
             },
             onComplete = { succeeded, failed, unsupported, died, details ->
-                Log.d(TAG, "热重载完成: 成功=$succeeded, 失败=$failed, 不支持=$unsupported, 进程已死=$died")
+                Log.d(TAG, "Hot reload finished: succeeded=$succeeded, failed=$failed, unsupported=$unsupported, died=$died")
                 for (d in details) {
                     if (d.status != "SUCCEEDED") {
                         Log.w(TAG, "  [${d.status}] ${d.processName}: ${d.message}")
@@ -114,7 +114,7 @@ class AdvancedSettingsViewModel(
 
         repository.resetPersistentValues(
             onComplete = { succeeded, failed, unsupported, details ->
-                Log.d(TAG, "重置持久化值完成: 成功=$succeeded, 失败=$failed, 不支持=$unsupported")
+                Log.d(TAG, "Reset persistent values finished: succeeded=$succeeded, failed=$failed, unsupported=$unsupported")
                 for (d in details) {
                     if (d.status != "SUCCEEDED") {
                         Log.w(TAG, "  [${d.status}] ${d.key}: ${d.message}")
@@ -131,7 +131,7 @@ class AdvancedSettingsViewModel(
         )
     }
 
-    /** 手动刷新 DexKit 索引：前台进度 Dialog + 完成后 Toast 结果。 */
+    /** Manually refresh DexKit index: foreground progress dialog + toast result upon completion. */
     fun refreshDexIndex(context: Context) {
         if (_dexIndexState.value.refreshing) return
         viewModelScope.launch(Dispatchers.Default) {
@@ -182,7 +182,7 @@ data class AdvancedSettingsUiState(
     val resetResultUnsupported: Int = 0
 )
 
-/** DexKit 索引进度与结果（设置页手动刷新路径）。 */
+/** DexKit index progress and results (settings screen manual refresh path). */
 data class DexIndexRefreshUiState(
     val refreshing: Boolean = false,
     val progress: DexIndexProgress = DexIndexProgress(),

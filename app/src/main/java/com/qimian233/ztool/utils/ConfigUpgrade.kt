@@ -5,8 +5,8 @@ import android.util.Log
 import com.qimian233.ztool.EnhancedShellExecutor
 import java.io.File
 
-// 用于升级配置的类，它用于移除旧配置的module_enabled_前缀，并保存新的配置。
-// 为其他部分完成删除PREFIX前缀的工作后方可启用这个工具类
+// Class for upgrading configuration, used to remove old 'module_enabled_' prefix and save new configuration.
+// This utility class can only be enabled after removing PREFIX prefix in other parts.
 object ConfigUpgrade {
     private const val TAG = "ConfigUpgrade"
     private var mPreferencesUtils: ModulePreferencesUtils? = null
@@ -16,7 +16,7 @@ object ConfigUpgrade {
         return mPreferencesUtils ?: ModulePreferencesUtils(context).also { mPreferencesUtils = it }
     }
 
-    // 执行器方法组
+    // Executor method group
     private fun upgradeConfigFormat(context: Context) {
         try {
             val prefs = getPreferencesUtils(context)
@@ -24,7 +24,7 @@ object ConfigUpgrade {
             Log.d(TAG, "Successfully fetched all settings:\n$allSettings")
             prefs.clearAllSettings()
             Log.d(TAG, "All config wiped, start upgrading config")
-            // writeConfigToSharedPrefs方法内置了移除module_enabled_前缀的操作，此处直接调用即可。
+            // writeConfigToSharedPrefs method has built-in removal of 'module_enabled_' prefix, call directly here.
             prefs.writeConfigToSharedPrefs(allSettings)
             prefs.saveBooleanSetting("isConfigUpgraded", true)
             Log.d(TAG, "Config format upgraded successfully")
@@ -87,7 +87,7 @@ object ConfigUpgrade {
         }
     }
 
-    // 单独检测向量对应的方法
+    // Methods corresponding to individual detection vectors
     private fun isConfigEmpty(prefs: ModulePreferencesUtils): Boolean {
         return prefs.getAllSettings().isEmpty()
     }
@@ -122,17 +122,17 @@ object ConfigUpgrade {
         return mCachedXSharedPrefsDir
     }
 
-    // 两个配置升级检测点对应的综合检测门禁
+    // Comprehensive detection gate corresponding to the two configuration upgrade detection points
     fun isConfigFormatUpgradeRequired(context: Context): Boolean {
         val prefs = getPreferencesUtils(context)
-        // 如果配置为空，则不需要升级（可能是用户点击了“清除配置”，或者全新安装了APP）
-        // 这个时候可以顺便设置一个配置升级标记，避免重复执行升级操作。
+        // If config is empty, no upgrade is needed (user may have clicked "Clear Configuration" or this is a fresh install)
+        // A config upgraded flag can be set along the way to avoid repeated upgrade checks.
         if (isConfigEmpty(prefs)) {
             Log.d(TAG, "Config is empty, maybe user performed reset or this is a fresh install, skipping upgrade.")
             prefs.saveBooleanSetting("isConfigUpgraded", true)
             return false
         }
-        // 先尝试读取新的配置升级标记，如果没有，则需要升级配置
+        // First try reading the new config upgraded flag; if absent, configuration upgrade is required
         if (!isUpgradedFlagExists(prefs)) {
             Log.d(TAG, "Upgraded flag not detected, try alternative method to detect config version.")
             return isConfigItemStartsWithOldPrefix(prefs)
@@ -148,16 +148,16 @@ object ConfigUpgrade {
         return isUpgradeNeeded
     }
 
-    // 供外部调用的升级配置方法
-    // 依次检查 RemotePrefs 和 Prefs 格式的升级必要性，如果有必要，就升级配置
-    // 返回值用于决定前端是否展示配置升级弹窗
-    // New 前缀也是老配置了吗...有点搞
+    // Configuration upgrade method called externally
+    // Checks necessity of RemotePrefs and Prefs format upgrades sequentially; upgrades if needed
+    // Return value determines whether frontend displays configuration upgrade dialog
+    // Is New prefix also considered old config now... interesting
     fun configUpgrader(context: Context): Boolean {
-        // Java 版每次调用都会创建新实例，这里重置实例状态以保持行为一致
+        // Java version created a new instance on each call; reset instance state here to maintain consistent behavior
         mPreferencesUtils = null
         mCachedXSharedPrefsDir = null
 
-        if (isRemotePrefsUpgradeRequired(context)) { // 升级到 RemotePrefs 不需要弹窗
+        if (isRemotePrefsUpgradeRequired(context)) { // Upgrade to RemotePrefs does not require a dialog
             upgradeRemotePrefs(context)
         }
 

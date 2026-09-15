@@ -11,12 +11,12 @@ import org.luckypray.dexkit.query.FindMethod
 import org.luckypray.dexkit.query.matchers.MethodMatcher
 
 /**
- * launcher 作用域（com.zui.launcher）离线索引器。
+ * Offline indexer for launcher scope (com.zui.launcher).
  *
- * 原样迁移自以下 Hook 的 DexKit 查询：
- * - CleanGlobalSearch（热词初始化/数据填充方法名）
- * - DisableForceStop（OverviewUtilities force-stop 方法名）
- * - ZuiLauncherHotseatHook（LoaderCursor 尺寸检查方法名）
+ * Migrated as-is from DexKit queries in the following Hooks:
+ * - CleanGlobalSearch (hotword initialization / data filling method names)
+ * - DisableForceStop (OverviewUtilities force-stop method name)
+ * - ZuiLauncherHotseatHook (LoaderCursor size check method name)
  */
 class LauncherDexIndexer : DexIndexer {
 
@@ -34,7 +34,7 @@ class LauncherDexIndexer : DexIndexer {
 
     private fun indexCleanGlobalSearch(bridge: DexKitBridge): JsonObject {
         val out = JsonObject()
-        // 无参 void 方法（HotWordView 初始化），原 discoverInitMethods 取第一个匹配
+        // Zero-argument void method (HotWordView initialization), original discoverInitMethods takes the first match
         try {
             val methods = bridge.findMethod {
                 searchPackages(scopePackage)
@@ -44,8 +44,8 @@ class LauncherDexIndexer : DexIndexer {
                     declaredClass = "com.zui.launcher.GlobalSearchView"
                 }
             }
-            // 过滤类初始化方法（无参 void 查询会命中 <clinit>，反射无法获取）；
-            // 遍历取第一个匹配（DexKit 的 firstOrNull 扩展不推荐非唯一结果）
+            // Filter class initializer method (zero-argument void query matches <clinit>, unobtainable via reflection);
+            // Iterate to take the first match (DexKit firstOrNull extension not recommended for non-unique results)
             for (md in methods) {
                 if (md.name != "<clinit>") {
                     out.addProperty(DexIndexConstants.Keys.HOTWORD_INIT_METHOD, md.name)
@@ -57,7 +57,7 @@ class LauncherDexIndexer : DexIndexer {
             Log.w(TAG, "CleanGlobalSearch: hotword init query failed", t)
         }
 
-        // (List) → void 方法（热词数据填充 E0），原 discoverE0Method 取 singleOrNull
+        // (List) -> void method (hotword data filling E0), original discoverE0Method takes singleOrNull
         try {
             val result = bridge.findMethod {
                 searchPackages(scopePackage)
@@ -81,7 +81,7 @@ class LauncherDexIndexer : DexIndexer {
 
     private fun indexDisableForceStop(bridge: DexKitBridge): JsonObject {
         val out = JsonObject()
-        // (Context, String, int) → void，声明类 OverviewUtilities，跳过 removeAppProcess
+        // (Context, String, int) -> void, declared class OverviewUtilities, skipping removeAppProcess
         try {
             val methods = bridge.findMethod(
                 FindMethod.create()
@@ -110,7 +110,7 @@ class LauncherDexIndexer : DexIndexer {
 
     private fun indexZuiLauncherHotseat(bridge: DexKitBridge): JsonObject {
         val out = JsonObject()
-        // (ItemInfo) → boolean，声明类 LoaderCursor；ItemInfo 为未混淆公开类
+        // (ItemInfo) -> boolean, declared class LoaderCursor; ItemInfo is an unobfuscated public class
         try {
             val methods = bridge.findMethod(
                 FindMethod.create()

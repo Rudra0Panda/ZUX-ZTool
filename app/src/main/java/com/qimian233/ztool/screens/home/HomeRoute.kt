@@ -115,7 +115,7 @@ fun HomeMainRoute(
         viewModel.checkDexIndexOnEntry(context.applicationContext)
     }
 
-    // DexKit 索引结果 Toast（Firstrun 后台索引 / 过期前台刷新完成后触发一次）
+    // DexKit indexing result Toast (triggered once after Firstrun background indexing / stale foreground refresh completes)
     LaunchedEffect(dexIndexState.toastMessage) {
         dexIndexState.toastMessage?.let { res ->
             Toast.makeText(context, res, Toast.LENGTH_SHORT).show()

@@ -6,11 +6,11 @@ import com.qimian233.ztool.hook.base.SystemHookModule
 import io.github.libxposed.api.XposedModuleInterface.SystemServerStartingParam
 
 /**
- * 关闭安装校验代理：
- * Android 16 的安装校验决策集中在 VerifyingSession。
- * - handleStartVerify 前注入 INSTALL_DISABLE_VERIFICATION flag
- * - isVerificationEnabled / isAdbVerificationEnabled 恒返 false，
- *   不再向校验代理广播验证请求
+ * Disable installation verification agent:
+ * On Android 16, package verification decisions are concentrated in VerifyingSession.
+ * - Injects the INSTALL_DISABLE_VERIFICATION flag before handleStartVerify
+ * - Causes isVerificationEnabled / isAdbVerificationEnabled to always return false,
+ *   so verification requests are no longer broadcast to verification agents
  */
 class PackageManagerVerificationAgentHook : SystemHookModule() {
 
@@ -41,7 +41,7 @@ class PackageManagerVerificationAgentHook : SystemHookModule() {
                 chain.proceed()
             }
 
-            // Android 16 上 isVerificationEnabled 已移入 VerifyingSession
+            // On Android 16, isVerificationEnabled has moved into VerifyingSession
             val isVerificationEnabled = verifyingSessionClass.declaredMethods.first {
                 it.name == "isVerificationEnabled" &&
                     it.returnType == Boolean::class.javaPrimitiveType

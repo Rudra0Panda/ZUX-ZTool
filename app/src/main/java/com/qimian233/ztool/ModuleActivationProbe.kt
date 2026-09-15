@@ -1,16 +1,16 @@
 package com.qimian233.ztool
 
 /**
- * 模块激活状态探测器。
+ * Module activation status detector.
  * <p>
- * 激活状态由 [ZToolApplication] 维护——Application 自身实现
- * [io.github.libxposed.service.XposedServiceHelper.OnServiceListener]，
- * 在 [ZToolApplication.attachBaseContext] 中注册，
- * 在 onServiceBind/onServiceDied 中更新 [ZToolApplication.isModuleActivated]。
+ * Activation state is maintained by [ZToolApplication]—Application itself implements
+ * [io.github.libxposed.service.XposedServiceHelper.OnServiceListener],
+ * registered in [ZToolApplication.attachBaseContext],
+ * updating [ZToolApplication.isModuleActivated] on onServiceBind/onServiceDied.
  * </p>
  * <p>
- * 此类提供对外的 [isModuleActive] 查询接口，
- * 内部直接委托给 [ZToolApplication.isModuleActivated]。
+ * This class exposes the public [isModuleActive] query interface,
+ * delegating directly to [ZToolApplication.isModuleActivated].
  * </p>
  */
 object ModuleActivationProbe {

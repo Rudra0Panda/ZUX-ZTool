@@ -8,9 +8,11 @@ import java.lang.reflect.Method
 
 /**
  * 跳过 ZUI 关联启动许可检查，始终允许关联启动。
+ * Skip ZUI associated app launch permission check, always allowing associated launches.
  *
  * Hook com.android.server.ZuiSecurityService.ZuiSecurityServiceBinder.getRelativeAppStatus
  * 使其始终返回 1（已允许）。
+ * to always return 1 (Allowed).
  */
 @SuppressLint("PrivateApi")
 class AllowRelativeAppLaunch: SystemHookModule() {

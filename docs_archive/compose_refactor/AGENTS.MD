@@ -31,7 +31,7 @@ ZUX-ZTool/
   UpdateCheck.json
   ZToolLogo.png
   ZToolLogoForeground.svg
-  更新日志.txt
+  CHANGELOG.md
 ```
 
 Main application areas:

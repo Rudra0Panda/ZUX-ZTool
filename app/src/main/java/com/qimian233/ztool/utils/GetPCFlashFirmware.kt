@@ -15,40 +15,40 @@ import java.net.URL
 import java.net.URLEncoder
 
 /**
- * 查询联想PC刷机固件信息。
+ * Query Lenovo PC flash firmware information.
  *
- * 网络请求全部运行在 [Dispatchers.IO] 上，调用方需在协程中调用 [queryFirmware]。
+ * Network requests all run on [Dispatchers.IO]; callers must invoke [queryFirmware] within a coroutine.
  */
 class GetPCFlashFirmware {
 
     /**
-     * 查询固件信息，返回六元素数组（下载链接、密码、平台、刷机方式、首次上传时间、最后更新时间），
-     * 失败时返回 null。
+     * Query firmware information, returning a six-element array (download URL, password, platform, flash method, first upload time, last update time),
+     * or null on failure.
      */
     suspend fun queryFirmware(sn: String): Array<String?>? = withContext(Dispatchers.IO) {
         if (sn.isEmpty()) {
-            Log.w(TAG, "错误: 请提供设备序列号作为参数")
+            Log.w(TAG, "Error: Please provide device serial number as argument")
             return@withContext null
         }
-        Log.d(TAG, "获取到序列号: $sn")
+        Log.d(TAG, "Obtained serial number: $sn")
 
         try {
             val mtm = getMTM(sn)
             if (mtm.isNullOrEmpty()) {
-                Log.w(TAG, "错误: 无法获取MTM参数")
+                Log.w(TAG, "Error: Unable to obtain MTM parameter")
                 return@withContext null
             }
-            Log.d(TAG, "获取到的MTM参数：$mtm")
+            Log.d(TAG, "Obtained MTM parameter: $mtm")
 
             val packageInfo = getDownloadPackageInfo(mtm)
             if (!packageInfo.isNullOrEmpty()) {
                 packageInfo
             } else {
-                Log.w(TAG, "错误: 空下载链接")
+                Log.w(TAG, "Error: Empty download link")
                 null
             }
         } catch (e: Exception) {
-            Log.e(TAG, "查询固件时发生异常", e)
+            Log.e(TAG, "Exception occurred while querying firmware", e)
             null
         }
     }
@@ -59,24 +59,24 @@ class GetPCFlashFirmware {
         private val MTM_PATTERN = Regex("\"MTM\":\"([^\"]+)\"")
 
         /**
-         * 获取机器信息并提取MTM参数
+         * Get machine information and extract MTM parameter
          */
         private fun getMTM(sn: String): String? {
             return try {
                 val urlStr = "https://ptstpd.lenovo.com.cn/home/ConfigurationQuery/getMachineSequenceInfo?MachineNo=" +
                         URLEncoder.encode(sn, "UTF-8")
-                Log.d(TAG, "查询链接：$urlStr")
+                Log.d(TAG, "Query URL: $urlStr")
                 val response = sendGetRequest(urlStr)
-                Log.d(TAG, "成功获取到MTM")
+                Log.d(TAG, "Successfully obtained MTM")
                 extractMTM(response)
             } catch (e: Exception) {
-                Log.w(TAG, "获取MTM时发生错误: " + e.message)
+                Log.w(TAG, "Error obtaining MTM: " + e.message)
                 null
             }
         }
 
         /**
-         * 使用MTM获取刷机包信息
+         * Use MTM to get flashing package information
          */
         private fun getDownloadPackageInfo(mtm: String): Array<String?>? {
             return try {
@@ -92,13 +92,13 @@ class GetPCFlashFirmware {
                     extractEverything(response, "upd_time") // Last update time
                 )
             } catch (e: Exception) {
-                Log.w(TAG, "获取下载链接时发生错误: " + e.message)
+                Log.w(TAG, "Error obtaining download link: " + e.message)
                 null
             }
         }
 
         /**
-         * 发送GET请求
+         * Send GET request
          */
         private fun sendGetRequest(urlStr: String): String {
             val url = URL(urlStr)
@@ -110,7 +110,7 @@ class GetPCFlashFirmware {
         }
 
         /**
-         * 发送POST请求
+         * Send POST request
          */
         private fun sendPostRequest(jsonBody: String): String {
             val url = URL("https://ptstpd.lenovo.com.cn/home/ConfigurationQuery/getPadFlashingMachine")
@@ -132,15 +132,15 @@ class GetPCFlashFirmware {
         }
 
         /**
-         * 读取HTTP响应
+         * Read HTTP response
          */
         private fun readResponse(conn: HttpURLConnection): String {
             val responseCode = conn.responseCode
             if (responseCode != HttpURLConnection.HTTP_OK) {
-                Log.w(TAG, "HTTP请求失败，响应码: $responseCode")
-                throw IOException("HTTP请求失败，响应码: $responseCode")
+                Log.w(TAG, "HTTP request failed, response code: $responseCode")
+                throw IOException("HTTP request failed, response code: $responseCode")
             }
-            Log.d(TAG, "HTTP请求成功，响应码：$responseCode")
+            Log.d(TAG, "HTTP request succeeded, response code: $responseCode")
             val response = StringBuilder()
             try {
                 conn.inputStream.use { inputStream ->
@@ -154,15 +154,14 @@ class GetPCFlashFirmware {
                     }
                 }
             } catch (e: Exception) {
-                Log.w(TAG, "读取响应时发生错误: $e")
+                Log.w(TAG, "Error reading response: $e")
                 throw e
             }
-            // Log.d(TAG, "读取到的响应内容：" + response)
             return response.toString()
         }
 
         /**
-         * 从JSON响应中提取MTM参数
+         * Extract MTM parameter from JSON response
          */
         private fun extractMTM(jsonResponse: String): String? {
             return MTM_PATTERN.find(jsonResponse)?.groupValues?.get(1)

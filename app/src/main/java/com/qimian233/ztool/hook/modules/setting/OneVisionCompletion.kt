@@ -5,8 +5,8 @@ import com.qimian233.ztool.hook.base.AppHookModule
 import io.github.libxposed.api.XposedModuleInterface.PackageLoadedParam
 
 /**
- * 系统设置Hook模块
- * 修改系统设置应用的行为
+ * System Settings Hook module.
+ * Modifies system settings application behavior to remove embedding blacklists.
  */
 class OneVisionCompletion : AppHookModule() {
     override fun getModuleName(): String = "remove_blacklist"

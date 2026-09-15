@@ -12,10 +12,14 @@ import java.lang.reflect.Method
 
 /**
  * 强制关联启动时以小窗（freeform）模式打开目标 Activity。
+ * Force target Activity to open in freeform window mode on associated launch.
  *
  * Hook com.android.server.wm.ZuiWmAutoRunManager.isAllowRelativeStart，
  * 当判定为跨 APP 关联启动时，注入 WINDOWING_MODE_FREEFORM=5 到
  * Bundle options 和 SafeActivityOptions 中。
+ * Hooks com.android.server.wm.ZuiWmAutoRunManager.isAllowRelativeStart;
+ * when detected as cross-app associated launch, injects WINDOWING_MODE_FREEFORM=5 into
+ * Bundle options and SafeActivityOptions.
  */
 @SuppressLint("PrivateApi")
 class ForceRelativeAppFreeform: SystemHookModule() {
@@ -28,6 +32,7 @@ class ForceRelativeAppFreeform: SystemHookModule() {
         private const val KEY_LAUNCH_WINDOWING_MODE = "android.activity.windowingMode"
 
         // 默认启动器包名缓存
+        // Default launcher package names cache
         @Volatile private var launcherPkgs: Set<String>? = null
         @Volatile private var launcherCacheExpire: Long = 0L
         private const val LAUNCHER_CACHE_TTL = 60_000L
@@ -99,10 +104,14 @@ class ForceRelativeAppFreeform: SystemHookModule() {
             val intent = chain.getArg(3) as Intent?
             // 优先使用 component.packageName（目标 Activity 真实归属包名），
             // 而非 intent.package（可能被 SDK 设为调用方自身包名）
+            // Prioritize component.packageName (target Activity actual package),
+            // rather than intent.package (which SDK might set to caller package)
             val targetPackage = intent?.component?.packageName ?: intent?.getPackage()
 
             // 仅在跨 APP 关联启动时注入 freeform
             // 排除：同包名自启动、启动器
+            // Only inject freeform for cross-app associated launches
+            // Exclude: same package self-launches, launcher
             val launchers = resolveLauncherPackages(chain.thisObject)
             val isRelativeLaunch = callingPackage != null
                 && callingPackage != targetPackage

@@ -101,7 +101,7 @@
 
 ### Step 6 — Verification
 1. `.\gradlew.bat assembleDebug` clean.
-2. Real-device spot checks: pinyin queries ("ztl"→ 状态栏, "kzzx"→ 控制中心), clock
+2. Real-device spot checks: pinyin queries ("ztl" → Status Bar, "kzzx" → Control Center), clock
    sub-rows now land directly (no parent fallback), audit logs empty on all 19 screens
    (debug build), release build behavior unchanged.
 3. Commit: `module(search): mandatory setting keys, debug index audit, pinyin matching`.

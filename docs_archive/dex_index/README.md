@@ -1,77 +1,69 @@
-# 离线 DexKit 索引（Offline DexKit Index）
+# Offline DexKit Index
 
-> 解决 DexKit 查询破坏 LSPosed 热重载的问题：把 DexKit 查找从"hook 加载路径"
-> 迁移到"模块 app 侧预计算"，hook 加载时只读结果文件。
+> Resolves the issue where DexKit queries break LSPosed hot reloading: moves DexKit method lookups from the "hook loading path" to "module app-side precomputation", allowing hooks to read precomputed result files at load time.
 
-## 背景
+## Background
 
-在 `handleLoadPackage`（目标进程内）同步执行 `DexKitBridge.create()` 会加载
-native 库并 mmap APK；热重载 replay 时对同一 APK 重复 create，native 状态冲突，
-导致加载这些 Hook 的进程无法安全热重载。本机制把查找移出 hook 加载路径。
+Synchronously executing `DexKitBridge.create()` inside `handleLoadPackage` (within the target process) loads native libraries and mmaps APKs. When hot reloading replays across the same APK with repeated `create()` calls, native state conflicts occur, preventing target processes from safely hot reloading. This mechanism extracts lookups completely out of the hook loading path.
 
-## 架构
+## Architecture
 
 ```
-阶段 A（模块 app 进程）：
-  触发（DexIndexReceiver / ZToolApplication 启动指纹检查 / 设置页手动刷新）
+Stage A (Module app process):
+  Trigger (DexIndexReceiver / ZToolApplication launch fingerprint check / Settings manual refresh)
     → DexIndexManager
-        ├ 对每个作用域包：sourceDir + splitSourceDirs → DexKitBridge.create(...)
-        ├ 跑该作用域唯一的 Indexer（原样迁移的查询代码）
-        └ 原子写 filesDir/<scopePackage>.json（含 apk 指纹，位于模块 filesDir 根目录）
+        ├ For each target scope package: sourceDir + splitSourceDirs → DexKitBridge.create(...)
+        ├ Run the unique Indexer for that scope (original lookup logic)
+        └ Atomically write filesDir/<scopePackage>.json (including APK fingerprints, located at the root of the module's filesDir)
 
-阶段 B（目标进程，hook 加载时）：
+Stage B (Target process, during hook loading):
   handleLoadPackage
-    → DexIndexStore.lookup / string          // openRemoteFile + gson，进程内缓存
-        ├ 能力检测 PROP_CAP_REMOTE + try-catch
-        └ 任何失败 → null → 调用方回退硬编码（现状语义不变）
+    → DexIndexStore.lookup / string          // openRemoteFile + gson, in-process caching
+        ├ Capability check PROP_CAP_REMOTE + try-catch
+        └ Any failure → null → caller falls back to hardcoded defaults (semantic behavior preserved)
 ```
 
-## 关键机制：libxposed Remote Files
+## Key Mechanism: libxposed Remote Files
 
-- hook 进程通过 `XposedInterface.openRemoteFile(name)` 读取**模块私有目录**根
-  `filesDir` 下的文件，LSPosed daemon 以特权代读，**无需 chmod、保持私有**。
-- 文件名必须是简单名（不含 `/`、`\`、`.`、`..`），且 **Remote Files 根就是
-  filesDir，不支持子目录**——索引文件必须直接写在 filesDir 根目录（`<scopePackage>.json`）。
-- 老框架/embedded 框架不支持时抛 `UnsupportedOperationException`/`FileNotFoundException`
-  （或 `AbstractMethodError`）→ `DexIndexStore` 静默返回 null，hook 走硬编码 fallback。
+- The hook process reads files under the **module's private root directory** (`filesDir`) via `XposedInterface.openRemoteFile(name)`. The LSPosed daemon handles privileged reading on its behalf, **without needing chmod, remaining completely private**.
+- File names must be simple names (no `/`, `\`, `.`, `..`). Furthermore, **the Remote Files root is `filesDir` itself and does not support subdirectories**—index files must be written directly in the root of `filesDir` (`<scopePackage>.json`).
+- If legacy or embedded frameworks do not support this, they throw `UnsupportedOperationException`, `FileNotFoundException`, or `AbstractMethodError` → `DexIndexStore` silently returns null, and the hook falls back to hardcoded values.
 
-## 目录与文件
+## Directory & File Structure
 
 ```text
 com.qimian233.ztool.dexindex/
-  DexIndexConstants.kt   // 目录名/schema 版本/模块 key/字段 key 常量
-  DexIndexer.kt          // 接口：scopePackage + index(bridge, context): JsonObject
-  LauncherDexIndexer.kt  // com.zui.launcher 作用域（3 模块查询）
-  SystemUiDexIndexer.kt  // com.android.systemui 作用域（2 模块查询）
-  MobileDesktopDexIndexer.kt // com.motorola.mobiledesktop 作用域（2 模块查询）
-  DexIndexRegistry.kt    // indexers 注册表（作用域 → Indexer 唯一映射）
-  DexIndexManager.kt     // app 侧执行器：bridge/原子写/指纹/异常隔离
-  DexIndexReceiver.kt    // 模块安装/更新触发
+  DexIndexConstants.kt       // Directory name / schema version / module key / field key constants
+  DexIndexer.kt              // Interface: scopePackage + index(bridge, context): JsonObject
+  LauncherDexIndexer.kt      // com.zui.launcher scope (3 module queries)
+  SystemUiDexIndexer.kt      // com.android.systemui scope (2 module queries)
+  MobileDesktopDexIndexer.kt // com.motorola.mobiledesktop scope (2 module queries)
+  DexIndexRegistry.kt        // Indexers registry (scope → Indexer unique mapping)
+  DexIndexManager.kt         // App-side runner: bridge / atomic write / fingerprinting / exception isolation
+  DexIndexReceiver.kt        // Module install / update triggers
 
 com.qimian233.ztool.hook.base/
-  DexIndexStore.kt       // hook 侧只读工具（唯一依赖 libxposed 的索引类）
+  DexIndexStore.kt           // Hook-side read-only utility (the only index class depending on libxposed)
 ```
 
-## 新增一个使用 DexKit 的 Hook
+## Adding a Hook That Uses DexKit
 
-1. 若目标包已有作用域 Indexer，把查询代码**原样迁移**进对应 Indexer（包一层 try-catch）；
-   否则新建 `XxxDexIndexer` 并在 `DexIndexRegistry` 登记（scopePackage 引用 `ScopeKeys`）。
-2. 在 `DexIndexConstants.Keys` 添加输出字段 key；如模块 key 不存在则加到 `ModuleKeys`
-   （必须与 Hook 的 `getModuleName()` 一致）。
-3. **Indexer 不写 fallback 值**：查询失败就不写该 key，由 Hook 侧回退硬编码。
-4. Hook 侧（`handleLoadPackage` 回调阶段，勿在 lambda 内做 IO）：
+1. If the target package already has a scope Indexer, migrate the query code into the corresponding Indexer (wrapped in a try-catch block); otherwise create a new `XxxDexIndexer` and register it in `DexIndexRegistry` (scopePackage references `ScopeKeys`).
+2. Add output field keys to `DexIndexConstants.Keys`; if the module key does not exist, add it to `ModuleKeys` (must match the Hook's `getModuleName()`).
+3. **Indexers do not write fallback values**: if a query fails, simply do not write the key, and let the Hook side fall back to hardcoded defaults.
+4. On the Hook side (during the `handleLoadPackage` callback stage; do not perform IO inside lambdas):
    ```kotlin
    val name = DexIndexStore.string(
        xposed, ScopeKeys.XXX.packageName,
-       DexIndexConstants.ModuleKeys.MODULE, // 或者 PreferenceKeys.MODULE_NAME.name
+       DexIndexConstants.ModuleKeys.MODULE, // or PreferenceKeys.MODULE_NAME.name
        DexIndexConstants.Keys.FIELD
-   ) ?: "硬编码fallback"
+   ) ?: "hardcoded_fallback"
    ```
-5. 删除 Hook 内原 DexKit 相关 import/代码；不再引用 `DexKitHelper`（已删除）。
+5. Remove original DexKit-related imports/code in the Hook; no longer reference `DexKitHelper` (removed).
 
-## 配置文件格式
+## Configuration File Format
 
-`filesDir/com.zui.launcher.json`（模块 filesDir 根目录）
+`filesDir/com.zui.launcher.json` (module filesDir root)
 
 ```json
 {
@@ -84,13 +76,13 @@ com.qimian233.ztool.hook.base/
 }
 ```
 
-- `apk` 指纹（路径 + PackageInfo.lastUpdateTime + 签名 SHA-256）用于失效检测：
-  目标 app 更新（OTA）后 `ZToolApplication` 启动时自动重扫。
-- 写入为原子写（tmp + rename），避免 hook 侧读到半截 JSON。
+- `apk` fingerprint (path + PackageInfo.lastUpdateTime + signature SHA-256) is used for invalidation detection:
+  when the target app updates (OTA), `ZToolApplication` automatically rescans on startup.
+- Writes are atomic (tmp + rename) to avoid the hook side reading incomplete JSON.
 
-## 注意
+## Notes
 
-- 索引完成后需**重启目标进程或热重载**才生效（`handleLoadPackage` 仅在进程启动时执行一次）。
-- 首次安装后目标进程可能先于索引启动 → 走硬编码 fallback（行为与改造前一致，不劣化）。
-- 不要在 hook lambda（`hookWithId` 回调）里读索引/做 IO；在 `handleLoadPackage` 阶段读好。
-- `DexIndexManager` 依赖 dexkit native 库（app 侧），索引失败不影响 app 使用。
+- After indexing is complete, the **target process must be restarted or hot reloaded** to take effect (`handleLoadPackage` runs only once at process startup).
+- On first installation, the target process may start before indexing completes → falls back to hardcoded defaults (identical to pre-refactor behavior).
+- Never read index files or perform IO inside hook lambdas (`hookWithId` callbacks); resolve everything during the `handleLoadPackage` stage.
+- `DexIndexManager` depends on the native dexkit library (app side); indexing failures do not impact app usability.

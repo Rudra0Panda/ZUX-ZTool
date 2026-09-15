@@ -6,8 +6,8 @@ import com.qimian233.ztool.hook.base.SystemHookModule
 import io.github.libxposed.api.XposedModuleInterface.SystemServerStartingParam
 
 /**
- * 绕过精确签名比对：SigningDetails.signaturesMatchExactly 恒真。
- * 影响安装器对"必须与已安装版本签名完全一致"的判定。
+ * Bypass exact signature match check: SigningDetails.signaturesMatchExactly constantly returns true.
+ * Affects installer checks that require "signatures must match the installed version exactly".
  */
 class PackageManagerExactSigMatchBypassHook : SystemHookModule() {
 

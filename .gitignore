@@ -44,7 +44,7 @@ build/
 *.jks
 *.keystore
 
-# 其他
+# Other
 /gradle/gradle-daemon-jvm.properties
 /app/release/*
 /reasonix.toml

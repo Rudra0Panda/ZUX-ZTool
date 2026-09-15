@@ -3,23 +3,23 @@ package com.qimian233.ztool.dexindex.base
 import com.qimian233.ztool.data.keys.PreferenceKeys
 
 /**
- * 离线 DexKit 索引的常量定义。
+ * Constant definitions for offline DexKit indexing.
  *
- * 目录结构：`files/dex_index/<scopePackage>.json`（模块私有目录，hook 侧经
- * libxposed Remote Files（`openRemoteFile`）读取，无需 chmod）。
+ * Directory structure: `files/dex_index/<scopePackage>.json` (module private directory, read by hook side
+ * via libxposed Remote Files (`openRemoteFile`), no chmod needed).
  */
 object DexIndexConstants {
 
     /**
-     * 索引文件直接位于模块 filesDir 根目录：libxposed Remote Files 的根即
-     * filesDir，文件名不支持子目录/路径分隔符，文件名为 `<scopePackage>.json`。
+     * Index files reside directly in module filesDir root: libxposed Remote Files root is
+     * filesDir, file names do not support subdirectories/path separators, named `<scopePackage>.json`.
      *
-     * v2：indexer 输出改回纯 modules 映射（v1 曾双重嵌套 modules，且 v1 读取
-     * 端 ConcurrentHashMap 存 null 会 NPE）；needsReindex 校验该值以自动重建旧文件。
+     * v2: Indexer output changed back to pure modules mapping (v1 had double nested modules, and v1 read-side
+     * ConcurrentHashMap storing null threw NPE); needsReindex validates this value to rebuild old files automatically.
      */
     const val SCHEMA_VERSION = 2
 
-    // ── JSON 结构 key ─────────────────────────────────────────────
+    // ── JSON structure keys ─────────────────────────────────────────────
     const val JSON_SCHEMA_VERSION = "schemaVersion"
     const val JSON_GENERATED_AT = "generatedAt"
     const val JSON_APK = "apk"
@@ -28,12 +28,12 @@ object DexIndexConstants {
     const val JSON_SIGNATURE_HASH = "signatureHash"
     const val JSON_MODULES = "modules"
 
-    /** 生成某作用域的索引文件名（openRemoteFile 要求简单文件名，不含 / . ..）。 */
+    /** Generate index file name for a scope (openRemoteFile requires simple file name, without / . ..). */
     fun fileName(scopePackage: String): String = "$scopePackage.json"
 
     /**
-     * 模块 key（与各 Hook 的 getModuleName() 返回值一致）。
-     * 索引器写入与 Hook 侧读取必须使用同一常量。
+     * Module keys (consistent with each Hook's getModuleName() return value).
+     * Indexer write and Hook-side read must use the identical constant.
      */
     object ModuleKeys {
         val CLEAN_GLOBAL_SEARCH = PreferenceKeys.CLEAN_GLOBAL_SEARCH.name
@@ -46,7 +46,7 @@ object DexIndexConstants {
         val AUTO_ACCEPT_FILE_TRANSFER = PreferenceKeys.AUTO_ACCEPT_FILE_TRANSFER.name
     }
 
-    /** 各模块输出字段 key。 */
+    /** Output field keys for each module. */
     object Keys {
         // CleanGlobalSearch
         const val HOTWORD_INIT_METHOD = "hotwordInitMethod"

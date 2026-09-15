@@ -19,9 +19,9 @@ import kotlin.Throwable
 import kotlin.arrayOf
 
 /**
- * ZUI包安装器Hook模块
- * 功能：绕过ZUI系统的安装限制，修改包安装器界面样式
- * 目标：com.android.packageinstaller (ZUI系统包安装器)
+ * ZUI Package Installer Hook module.
+ * Function: Bypasses ZUI system installation restrictions and modifies package installer UI style.
+ * Target: com.android.packageinstaller (ZUI system package installer)
  */
 @SuppressLint("PrivateApi")
 class PackageInstallerStyleHook : AppHookModule() {
@@ -37,15 +37,15 @@ class PackageInstallerStyleHook : AppHookModule() {
 
     private fun hookZuiPackageInstaller(classLoader: ClassLoader) {
         try {
-            // 1. Hook Utils类的isCTSandGTS方法，绕过安装限制
+            // 1. Hook Utils.isCTSandGTS method to bypass install restrictions
             hookInstallationRestrictions(classLoader)
 
-            // 2. Hook Activity样式，修改界面显示
+            // 2. Hook Activity style to modify UI display
             hookActivityStyles(classLoader)
 
-            logger.info("ZUI Package Installer Hook 成功加载")
+            logger.info("ZUI Package Installer Hook loaded successfully")
         } catch (t: Throwable) {
-            logger.error("ZUI Package Installer Hook 加载失败", t)
+            logger.error("Failed to load ZUI Package Installer Hook", t)
         }
     }
 
@@ -55,7 +55,7 @@ class PackageInstallerStyleHook : AppHookModule() {
                 "com.android.packageinstaller.extra.Utils"
             )
 
-            // Hook isCTSandGTS方法的重载版本
+            // Hook isCTSandGTS overloaded methods
             val isCTSandGTS1 = utilsClass.getDeclaredMethod("isCTSandGTS", String::class.java)
             hookWithId(
                 isCTSandGTS1,
@@ -69,15 +69,15 @@ class PackageInstallerStyleHook : AppHookModule() {
                 "is_ct_sand_gts2"
             ) { Boolean.TRUE }
 
-            logger.info("成功Hook安装限制检查方法")
+            logger.info("Successfully hooked installation restriction check methods")
         } catch (t: Throwable) {
-            logger.error("Hook安装限制检查方法失败", t)
+            logger.error("Failed to hook installation restriction check methods", t)
         }
     }
 
     private fun hookActivityStyles(classLoader: ClassLoader) {
         try {
-            // 获取Theme_AlertDialogActivity的资源ID
+            // Get Theme_AlertDialogActivity resource ID
             val styleClass = classLoader.loadClass(
                 $$"com.android.packageinstaller.R$style"
             )
@@ -85,38 +85,38 @@ class PackageInstallerStyleHook : AppHookModule() {
             themeField.isAccessible = true
             val themeAlertDialogActivity = themeField.getInt(null)
 
-            // Hook Activity的onCreate方法，修改主题和窗口属性
+            // Hook Activity.onCreate method to modify theme and window attributes
             val onCreate = Activity::class.java.getDeclaredMethod("onCreate", Bundle::class.java)
             hookWithId(onCreate, "on_create") { chain ->
                 val activity = chain.thisObject as Activity
-                // 检查是否为目标包安装器的Activity
+                // Check if target is PackageInstaller Activity
                 if (activity.packageName == ScopeKeys.PACKAGE_INSTALLER.packageName) {
                     try {
-                        // 设置对话框主题
+                        // Set dialog theme
                         activity.setTheme(themeAlertDialogActivity)
 
-                        // 设置透明背景
+                        // Set translucent background
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                             activity.setTranslucent(true)
                         }
 
-                        // 请求无标题栏
-                        activity.requestWindowFeature(1) // 1对应Window.FEATURE_NO_TITLE
+                        // Request no title
+                        activity.requestWindowFeature(1) // 1 corresponds to Window.FEATURE_NO_TITLE
 
-                        // 禁用窗口动画
+                        // Disable window animations
                         activity.window.setWindowAnimations(0)
 
-                        logger.debug("成功修改包安装器Activity样式")
+                        logger.debug("Successfully modified package installer Activity style")
                     } catch (t: Throwable) {
-                        logger.error("修改Activity样式时出错", t)
+                        logger.error("Error modifying Activity style", t)
                     }
                 }
                 chain.proceed()
             }
 
-            logger.info("成功Hook Activity样式修改")
+            logger.info("Successfully hooked Activity style modification")
         } catch (t: Throwable) {
-            logger.error("Hook Activity样式修改失败", t)
+            logger.error("Failed to hook Activity style modification", t)
         }
     }
 

@@ -4,9 +4,9 @@ if ! command -v ui_print >/dev/null 2>&1; then
   ui_print() { echo "$1"; }
 fi
 
-ui_print "卸载 ZUXOS 平行视界配置模块..."
+ui_print "Uninstalling ZUXOS Parallel View configuration module..."
 
-# 删除配置文件
+# Remove configuration file
 rm -f /data/system/zui/embedding/embedding_config.json
 
-ui_print "卸载完成"
+ui_print "Uninstallation complete"

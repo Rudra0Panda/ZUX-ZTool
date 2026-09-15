@@ -4,17 +4,17 @@ import android.content.Intent
 import android.service.quicksettings.TileService
 
 /**
- * 媒体输出切换磁贴：点击后拉起系统的媒体输出切换 Dialog
- * （即媒体卡片上"输出切换"入口弹出的 MediaOutputDialog）。
+ * Media output switcher tile: clicking summons the system media output dialog
+ * (the MediaOutputDialog presented by the media card's output switcher entry).
  *
- * 实现完全依赖 Android 标准行为，无 Hook：
- * 1. 以标准 TileService 注册，用户在控制中心编辑器手动拖入；
- * 2. 点击时向 SystemUI 的 MediaOutputDialogReceiver 发送显式广播
- *    （真机已验证该 receiver 对第三方应用可达），由系统侧
- *    MediaOutputDialogManager.createAndShow(null, ...) 渲染弹窗，
- *    空态（无媒体会话）也可正常显示。
+ * Implementation relies entirely on standard Android platform behavior, no Hooks:
+ * 1. Registered as a standard TileService; users drag it into place via the Control Center editor;
+ * 2. On click, sends an explicit broadcast to SystemUI's MediaOutputDialogReceiver
+ *    (verified on physical devices to be reachable by third-party apps); the system side
+ *    MediaOutputDialogManager.createAndShow(null, ...) renders the dialog,
+ *    functioning properly even in empty states (no active media session).
  *
- * onClick 在主线程回调，广播为 fire-and-forget，无需额外线程。
+ * onClick runs on the main thread; the broadcast is fire-and-forget, requiring no extra threads.
  */
 class MediaOutputTileService : TileService() {
 
@@ -28,7 +28,7 @@ class MediaOutputTileService : TileService() {
     private companion object {
         const val SYSTEMUI_PACKAGE = "com.android.systemui"
         const val RECEIVER_CLASS = "com.android.systemui.media.dialog.MediaOutputDialogReceiver"
-        // AOSP SystemUI 公开 action，MediaOutputDialogReceiver 以静态 receiver 消费
+        // AOSP SystemUI public action, consumed statically by MediaOutputDialogReceiver
         const val ACTION_LAUNCH_MEDIA_OUTPUT_DIALOG =
             "com.android.systemui.action.LAUNCH_SYSTEM_MEDIA_OUTPUT_DIALOG"
     }

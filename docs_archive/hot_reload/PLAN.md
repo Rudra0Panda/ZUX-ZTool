@@ -1,181 +1,166 @@
-# 模块热重载实现计划
+# Module Hot Reload Implementation Plan
 
-## 概述
+## Overview
 
-根据 libxposed API 102 热重载示例 (`reference/example`) 调查结果，
-ZTool 完全未实现热重载生命周期回调，导致热重载被拒绝。
+Based on investigations into libxposed API 102 hot reload examples (`reference/example`), ZTool had not implemented hot reload lifecycle callbacks, causing hot reload requests to be rejected.
 
-本文档记录逐层实现计划，Phase 1–2 已全部完成，Phase 3 待评估。
+This document records the phased implementation plan: Phases 1–2 are fully completed, and Phase 3 is under evaluation.
 
 ---
 
-## Phase 1 — 启用热重载 + 基础重挂 Hook ✅ 已完成
+## Phase 1 — Enabling Hot Reload + Basic Hook Re-attachment ✅ Completed
 
-> 提交: `a4412967`
+> Commit: `a4412967`
 
-### 目标
+### Objective
 
-让热重载不被打回，新代码能重新安装全部 Hook。
+Prevent hot reload rejections and allow updated code to reinstall all Hooks.
 
-### 改动文件
+### Modified Files
 
-| # | 文件 | 变更 |
+| # | File | Changes |
 |---|------|------|
-| 1 | `HookManager.java` | 拆分 `initialize` → `registerAllModules()`；新增 `savedPackageParams`/`savedSystemServerParam` 缓存；新增 `reinitializeForHotReload()` + `replayAllHooks()` |
-| 2 | `HookInit.java` | 覆写 `onHotReloading` → `return true`；覆写 `onHotReloaded` → reinitialize + replay + unhook old |
+| 1 | `HookManager.java` | Split `initialize` → `registerAllModules()`; added `savedPackageParams`/`savedSystemServerParam` caches; added `reinitializeForHotReload()` + `replayAllHooks()` |
+| 2 | `HookInit.java` | Override `onHotReloading` → `return true`; override `onHotReloaded` → reinitialize + replay + unhook old |
 
-### 热重载流程
+### Hot Reload Lifecycle
 
 ```
 onHotReloaded:
-  1. HookManager.reinitializeForHotReload(this)   ← 清空旧模块，注册全部新模块
-  2. HookManager.replayAllHooks()                  ← 回放缓存的 package/systemServer 参数
-  3. oldHookHandles.forEach(unhook)                ← 移除旧 Hook
+  1. HookManager.reinitializeForHotReload(this)   ← Clear old modules, register all new modules
+  2. HookManager.replayAllHooks()                  ← Replay cached package/systemServer parameters
+  3. oldHookHandles.forEach(unhook)                ← Remove old Hooks
 ```
 
-### 已知局限
+### Known Limitations
 
-旧 Hook 先安装再移除，存在短暂真空窗口 → Phase 2 解决。
+Old Hooks were unhooked after new Hooks installed, creating a brief vacuum window → resolved in Phase 2.
 
 ---
 
-## Phase 2 — 原子替换：消除 Hook 真空窗口 ✅ 已完成
+## Phase 2 — Atomic Replacement: Eliminating Hook Vacuum Windows ✅ Completed
 
 > P0: `26357fb` | P1: `749b9b1d` | P2+: `e6a24c2e`
 
-### 原理
+### Principle
 
-libxposed API 内置：同一 module、同一 executable 上，使用相同 `setId()` 的新 Hook
-会**自动原子替换**旧 Hook。
+Built into libxposed API: on the same module and executable, new Hooks with identical `setId()` **automatically and atomically replace** old Hooks.
 
-### 基础设施
+### Infrastructure
 
-| 文件 | 变更 |
-|------|------|
-| `BaseHookModule.java` | 新增 `hookWithId(Executable, String id, Hooker)` 方法 |
+| File | Changes |
+|---|---|
+| `BaseHookModule.java` | Added `hookWithId(Executable, String id, Hooker)` method |
 
-### 覆盖范围
+### Coverage
 
-| 批次 | 目录 | 文件数 | Hook 数 | 方式 |
-|------|------|:---:|:---:|------|
-| P0 | `systemFramework/` | 8 | 14 | 手工逐文件 |
-| P1 | `systemui/` + `setting/` | 31 | 101 | Python 脚本批量 |
-| P2+ | `launcher/`, `gametool/`, `ota/`, `packageinstaller/`, `wallpaper/`, `documentsui/`, `safecenter/`, `mobiledesktop/` | 32 | 103 | Python 脚本批量 |
-| **合计** | **全部 16 个模块目录** | **71** | **218** | |
+| Batch | Directory | Files | Hooks | Method |
+|---|---|:---:|:---:|---|
+| P0 | `systemFramework/` | 8 | 14 | Manual per-file |
+| P1 | `systemui/` + `setting/` | 31 | 101 | Python batch script |
+| P2+ | `launcher/`, `gametool/`, `ota/`, `packageinstaller/`, `wallpaper/`, `documentsui/`, `safecenter/`, `mobiledesktop/` | 32 | 103 | Python batch script |
+| **Total** | **All 16 module directories** | **71** | **218** | |
 
-### ID 命名约定
+### ID Naming Conventions
 
-模块内唯一，描述性小写+下划线。从方法变量名自动生成（camelCase → snake_case）。
-同文件内重复 ID 自动加 `_2`, `_3` 后缀去重。
+Unique within each module, descriptive lowercase + underscore. Automatically generated from method variable names (camelCase → snake_case). Duplicate IDs within the same file receive `_2`, `_3` suffixes.
 
-### 热重载流程（Phase 2 增强）
+### Hot Reload Lifecycle (Phase 2 Enhanced)
 
 ```
 onHotReloaded:
-  1. reinitializeForHotReload(this)     ← 注册全部新模块
-  2. replayAllHooks()                   ← 回放生命周期 → hookWithId() 带相同 ID
-                                         → 框架自动 replaceHook() 原子替换
-  3. oldHookHandles.forEach(unhook)     ← 移除残余旧 Hook（replaced 的已失效，unhook 是 no-op）
+  1. reinitializeForHotReload(this)     ← Register all new modules
+  2. replayAllHooks()                   ← Replay lifecycle → hookWithId() with identical ID
+                                         → Framework automatically executes replaceHook() atomic replacement
+  3. oldHookHandles.forEach(unhook)     ← Remove residual old Hooks (replaced hooks are already invalidated, unhook is a no-op)
 ```
 
 ---
 
-## Phase 3 — 资源清理：防止 classloader 泄漏
+## Phase 3 — Resource Cleanup: Preventing Classloader Leaks
 
-### 状态：待评估
+### Status: Under Evaluation
 
-### 问题清单
+### Problem Manifest
 
-| # | 文件 | 问题 | 类型 | 风险 |
-|---|------|------|------|------|
-| 1 | `OwnerInfoHook.java:252` | `new Thread()` 无停止机制 | 线程 | 🟡 低 — HTTP 请求线程，快速完成 |
-| 2 | `DexKitHelper.kt:24,32` | `System.loadLibrary("dexkit")` + bridge 缓存无清理 | Native | 🟡 低 — loadLibrary 一次性，旧 bridge 未关闭 |
-| 3 | `NativeNotificationIcon.java:33` | `ThreadLocal<Boolean> isCtsMode` | ThreadLocal | 🟢 极低 — 阻止 GC 但不影响功能 |
-| 4 | `PermissionControllerHook.java:75` | `ThreadLocal<Boolean> isRowVersionTls` | ThreadLocal | 🟢 极低 — 同上 |
+| # | File | Issue | Type | Risk |
+|---|---|---|---|---|
+| 1 | `OwnerInfoHook.java:252` | `new Thread()` lacks termination mechanism | Thread | 🟡 Low — HTTP fetch thread, terminates quickly |
+| 2 | `DexKitHelper.kt:24,32` | `System.loadLibrary("dexkit")` + unclosed bridge cache | Native | 🟡 Low — loadLibrary is one-time, old bridge unclosed |
+| 3 | `NativeNotificationIcon.java:33` | `ThreadLocal<Boolean> isCtsMode` | ThreadLocal | 🟢 Very low — Prevents GC but does not break functionality |
+| 4 | `PermissionControllerHook.java:75` | `ThreadLocal<Boolean> isRowVersionTls` | ThreadLocal | 🟢 Very low — Same as above |
 
-### 影响评估
+### Impact Assessment
 
-| 风险项 | 是否阻止热重载？ | 是否导致崩溃？ | 实际影响 |
-|--------|:---:|:---:|------|
-| 未停止的线程 | 否（`onHotReloading` 仍返回 true） | 可能有竞态 | 旧线程可能在新代码加载后继续操作旧对象，但 OwnerInfoHook 的线程是短生命周期 HTTP fetch |
-| ThreadLocal 残留 | 否 | 否 | 阻止旧 classloader GC → 内存泄漏。一个 classloader 通常几 MB，可接受 |
-| Native 库未卸载 | 否 | 否（再次 load 是 no-op） | `DexKitBridge` 旧实例持有 native 资源未 close，但热重载后会被新 bridge 替代 |
-| LsposedServiceProtector | N/A | N/A | 当前**未注册**到 HookManager，不参与热重载 |
+| Risk Item | Blocks Hot Reload? | Causes Crashes? | Practical Impact |
+|---|:---:|:---:|---|
+| Running threads | No (`onHotReloading` still returns true) | Potential race condition | Old thread might operate on stale objects after new code loads; however OwnerInfoHook thread is a short-lived HTTP fetch |
+| ThreadLocal residual | No | No | Prevents old classloader GC → memory leak. A classloader is typically a few MBs, acceptable |
+| Unloaded native libs | No | No (re-loading is a no-op) | `DexKitBridge` old instances retain native resources, but replaced by new bridge after reload |
+| LsposedServiceProtector | N/A | N/A | Currently **unregistered** in HookManager, does not participate in hot reload |
 
-### 建议
+### Recommendation
 
-**Phase 3 优先级：低。** 当前热重载功能（Phase 1+2）在实测中已验证可用（7 SUCCEEDED, 3 UNSUPPORTED）。
-Phase 3 的改善主要在于长期运行的内存效率（避免多次热重载后的 classloader 累积），
-不影响单次热重载的正确性。
+**Phase 3 Priority: Low.** Current hot reload capabilities (Phase 1+2) have been verified in testing (7 SUCCEEDED, 3 UNSUPPORTED). Phase 3 improvements target long-term memory efficiency (preventing classloader buildup over repeated reloads), without affecting correctness of individual reloads.
 
-如果后续长期运行中出现 classloader 泄漏导致 OOM，
-再实施 Phase 3。届时方案：
-
-- `BaseHookModule` 新增 `onHotReloading()` 调用的 `prepareForHotReload()` 钩子
-- 各模块覆写以清理线程/ThreadLocal/native 资源
-- `HookInit.onHotReloading()` 在 `return true` 之前遍历模块调用 `prepareForHotReload()`
+If long-term usage exhibits classloader leaks leading to OOM, implement Phase 3:
+- Add `prepareForHotReload()` hook called by `onHotReloading()` in `BaseHookModule`
+- Override in individual modules to clean up threads/ThreadLocals/native resources
+- `HookInit.onHotReloading()` iterates over modules calling `prepareForHotReload()` before returning true
 
 ---
 
-## 已知限制 — LSPosed Native 库热重载限制
+## Known Limitations — LSPosed Native Library Hot Reload Restrictions
 
-### 现象
+### Symptoms
 
-以下 3 个进程的热重载永久返回 `UNSUPPORTED`：
+Hot reloading permanently returns `UNSUPPORTED` for the following 3 processes:
 - `com.android.systemui`
 - `com.zui.launcher`
 - `com.motorola.mobiledesktop`
 
-错误消息：*"Hot reload with native libraries is supported only for stale targets."*
+Error message: *"Hot reload with native libraries is supported only for stale targets."*
 
-### 根因
+### Root Cause
 
 ```
-ZTool APK 打包了 libdexkit.so (来自 org.luckypray:dexkit:2.0.6)
-  → LSPosed 检测到 APK 的 lib/ 目录中有 .so 文件
-    → 标记该模块"含 native 库"
-      → 热重载策略收紧：仅对 stale（运行旧版代码的）进程可用
-        → 这 3 个进程重启后变为 fresh（已运行最新代码）→ 永远 UNSUPPORTED
+ZTool APK packages libdexkit.so (from org.luckypray:dexkit:2.0.6)
+  → LSPosed detects .so files in APK's lib/ directory
+    → Marks module as "containing native libraries"
+      → Tightens hot reload policy: only available for stale targets (running old module code)
+        → These 3 processes become fresh upon restart (running latest code) → Permanently UNSUPPORTED
 ```
 
-LSPosed 在 **APK 文件层面** 判断 native 库存在与否，与运行时是否调用 `System.loadLibrary` 无关。
-Native 代码一旦加载无法安全卸载（Android 的 `dlclose` 对大多数 .so 不生效），
-因此 LSPosed 限制含 native 库的模块只能对 stale 进程热重载。
+LSPosed evaluates the presence of native libraries at the **APK file level**, regardless of whether `System.loadLibrary` is called at runtime.
+Once native code is loaded, it cannot be safely unloaded (`dlclose` is a no-op for most .so libraries on Android). Hence LSPosed restricts modules containing native libraries to stale processes only.
 
-### 影响
+### Impact
 
-这 3 个进程在冷启动时会自动加载最新模块代码，**不需要热重载即可获得最新 Hook**。
-热重载对它们本就不必要——它们已经是 `UP_TO_DATE` 状态。
+These 3 processes automatically load the latest module code upon cold start, **requiring no hot reload to gain the newest Hooks**.
+Hot reload is unnecessary for them—they are already in `UP_TO_DATE` status.
 
-### 使用 DEXKit 的 Hook 模块
+### Hook Modules Using DexKit
 
-| 目录 | 文件 | DEXKit 用途 |
-|------|------|------------|
-| systemui/ | `NoChargeAnimation.java` | 混淆方法签名搜索 |
-| systemui/ | `SystemUINetworkSpeeddoublelayerHook.java` | 混淆方法签名搜索 |
-| launcher/ | `CleanGlobalSearch.java` | 混淆方法签名搜索 |
-| launcher/ | `DisableForceStop.java` | 混淆方法签名搜索 |
-| launcher/ | `ZuiLauncherHotseatHook.java` | 混淆方法签名搜索 |
-| mobiledesktop/ | `BypassShareWarningHook.kt` | 混淆方法签名搜索 |
-| mobiledesktop/ | `DisableNearbyShareAutoOffHook.kt` | 混淆方法签名搜索 |
+| Directory | File | DexKit Purpose |
+|---|---|---|
+| systemui/ | `NoChargeAnimation.java` | Obfuscated method signature lookup |
+| systemui/ | `SystemUINetworkSpeeddoublelayerHook.java` | Obfuscated method signature lookup |
+| launcher/ | `CleanGlobalSearch.java` | Obfuscated method signature lookup |
+| launcher/ | `DisableForceStop.java` | Obfuscated method signature lookup |
+| launcher/ | `ZuiLauncherHotseatHook.java` | Obfuscated method signature lookup |
+| mobiledesktop/ | `BypassShareWarningHook.kt` | Obfuscated method signature lookup |
+| mobiledesktop/ | `DisableNearbyShareAutoOffHook.kt` | Obfuscated method signature lookup |
 
-### 可能的解决路径（均不采纳）
+### Evaluation & Decision
 
-| 方案 | 代价 |
-|------|------|
-| 去掉 dexkit 依赖，重写 7 个 Hook 为纯反射 | 大 — 这些 Hook 强依赖 DEXKit 的签名搜索定位混淆方法 |
-| 将 dexkit 分离为独立模块 | LSPosed 不支持跨模块 native 代码加载 |
-
-### 决策
-
-**接受 LSPosed 的限制。** 3 个 UNSUPPORTED 是正确的、无害的。冷启动已确保最新 Hook 生效。
+**Accept LSPosed restrictions.** The 3 `UNSUPPORTED` results are harmless and expected. Cold starts ensure latest Hooks take effect. (Note: Offline DexKit indexing now resolves this restriction).
 
 ---
 
-## 验证方案
+## Verification Strategy
 
-1. `.\gradlew.bat assembleDebug` 编译通过 ✅
-2. 安装到设备，触发"高级选项 → 热重载全部模块" ✅
-   - 7 个 SUCCEEDED，3 个 UNSUPPORTED（含 native 库的进程，冷启动已加载最新代码）
-3. 观察 Logcat 确认 `onHotReloading` / `onHotReloaded` 被调用 ✅
-4. 验证各 Hook 功能在热重载后仍正常工作 ✅
+1. `./gradlew assembleDebug` builds cleanly ✅
+2. Installed on device, triggered "Advanced Settings → Hot Reload All Modules" ✅
+   - 7 SUCCEEDED, 3 UNSUPPORTED (processes with native libs; cold start already runs latest code)
+3. Verified via Logcat that `onHotReloading` / `onHotReloaded` were called ✅
+4. Verified Hook features remain functional after hot reload ✅

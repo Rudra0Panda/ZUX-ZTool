@@ -146,7 +146,7 @@ See [CHANGELOG.md](/CHANGELOG.md) for recent changes, and check [TODOS.md](/TODO
   - Always allow package list access
   - Enable autorun by default
 
-- [墨染_nlx](https://github.com/morannlx)'s [ZUXOS+](https://github.com/morannlx/me.inkdye.zuxos) project, which inspired several requested features:
+- [morannlx](https://github.com/morannlx)'s [ZUXOS+](https://github.com/morannlx/me.inkdye.zuxos) project, which inspired several requested features:
   - Quick jump shortcut inside Settings
   - Custom About Device panel info
   - Control center tile no-label mode

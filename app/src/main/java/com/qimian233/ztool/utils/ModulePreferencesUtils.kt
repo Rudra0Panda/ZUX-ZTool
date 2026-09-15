@@ -14,9 +14,9 @@ import java.io.File
 import androidx.core.content.edit
 
 /**
- * SharedPreferences 工具类，封装 Xposed 模块配置的读写操作。
+ * SharedPreferences utility class encapsulating read/write operations for Xposed module configurations.
  *
- * 类型推断使用 [PreferenceKeys] 中的列表循环匹配，替代硬编码的 || + equals 链。
+ * Type inference iterates through lists in [PreferenceKeys], replacing hardcoded || + equals chains.
  */
 class ModulePreferencesUtils(
     private val context: Context,
@@ -24,7 +24,7 @@ class ModulePreferencesUtils(
 ) {
 
     // ═══════════════════════════════════════════════════════════
-    // SharedPreferences 实例获取
+    // SharedPreferences Instance Retrieval
     // ═══════════════════════════════════════════════════════════
 
     val modulePreferences: SharedPreferences
@@ -195,7 +195,7 @@ class ModulePreferencesUtils(
     }
 
     // ═══════════════════════════════════════════════════════════
-    // 批量操作
+    // Batch Operations
     // ═══════════════════════════════════════════════════════════
 
     @SuppressLint("WorldReadableFiles", "ApplySharedPref")
@@ -209,10 +209,10 @@ class ModulePreferencesUtils(
             val prefs = modulePreferences
             @Suppress("UNCHECKED_CAST")
             val allEntries = HashMap(prefs.all) as HashMap<String, Any>
-            Log.d(TAG, "成功读取所有设置，条目数：" + allEntries.size)
+            Log.d(TAG, "Successfully read all settings, entry count: " + allEntries.size)
             allEntries
         } catch (e: Exception) {
-            Log.e(TAG, "读取所有设置失败", e)
+            Log.e(TAG, "Failed to read all settings", e)
             emptyMap()
         }
     }
@@ -248,7 +248,7 @@ class ModulePreferencesUtils(
     }
 
     // ═══════════════════════════════════════════════════════════
-    // JSON 序列化
+    // JSON Serialization
     // ═══════════════════════════════════════════════════════════
 
     fun getAllSettingsAsJSON(): String? {
@@ -263,7 +263,7 @@ class ModulePreferencesUtils(
     }
 
     // ═══════════════════════════════════════════════════════════
-    // 配置还原
+    // Configuration Restoration
     // ═══════════════════════════════════════════════════════════
 
     fun writeJSONToSharedPrefs(jsonString: String) {
@@ -272,15 +272,15 @@ class ModulePreferencesUtils(
     }
 
     /**
-     * 将 Map 写入 SharedPreferences。
+     * Write Map to SharedPreferences.
      *
-     * 使用 [PreferenceKeys] 的列表循环匹配来推断每个键的数据类型，
-     * 替代以前的大量 || + equals 硬编码链。
+     * Uses [PreferenceKeys] list iteration to infer the data type of each key,
+     * replacing the previous extensive || + equals hardcoded chains.
      */
     fun writeConfigToSharedPrefs(mapToWrite: Map<String, Any>) {
         for ((key, value) in mapToWrite) {
             try {
-                // 处理旧版本配置遗留的多余前缀 module_enabled_
+                // Handle redundant legacy prefix 'module_enabled_' from older config versions
                 val cleanKey = key.replace("module_enabled_", "")
                 Log.d(
                     TAG, "Processing key: $cleanKey, value: $value, type: " +
@@ -346,7 +346,7 @@ class ModulePreferencesUtils(
     }
 
     // ═══════════════════════════════════════════════════════════
-    // 类型强制转换辅助方法
+    // Type Coercion Helper Methods
     // ═══════════════════════════════════════════════════════════
 
     companion object {
@@ -382,7 +382,7 @@ class ModulePreferencesUtils(
                 val map: HashMap<String, Any> = gson.fromJson(jsonString, type)
                 processMapValues(map)
             } catch (e: Exception) {
-                Log.e("JsonToMapConverter", "JSON转换失败", e)
+                Log.e("JsonToMapConverter", "JSON conversion failed", e)
                 HashMap()
             }
         }
@@ -404,7 +404,7 @@ class ModulePreferencesUtils(
             return processedMap
         }
 
-        // ── 值强制转换 ──
+        // ── Value Coercion ──
 
         fun coerceFloatValue(value: Any?): Float? {
             return when (value) {

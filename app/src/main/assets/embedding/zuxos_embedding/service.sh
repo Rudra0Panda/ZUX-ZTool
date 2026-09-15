@@ -2,9 +2,9 @@
 
 MODDIR=${0%/*}
 
-# 模块服务脚本
+# Module service script
 while true; do
-    # 定期检查配置文件是否存在
+    # Periodically check if configuration file exists
     if [ ! -f "/data/system/zui/embedding/embedding_config.json" ]; then
         cp -f $MODDIR/embedding_config.json /data/system/zui/embedding/embedding_config.json
         chmod 0644 /data/system/zui/embedding/embedding_config.json

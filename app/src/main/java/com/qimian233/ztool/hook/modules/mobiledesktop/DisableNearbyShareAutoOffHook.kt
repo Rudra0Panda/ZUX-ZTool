@@ -7,22 +7,21 @@ import com.qimian233.ztool.hook.base.DexIndexStore
 import io.github.libxposed.api.XposedModuleInterface
 
 /**
- * 测试 Hook — 禁用超级互联附近分享的 10 分钟自动关闭倒计时。
+ * Test Hook — Disables the 10-minute auto-off countdown for Smart Connect nearby sharing.
  *
- * 机制：FileUnionSwitchManager（当前版本混淆为
- * `com.motorola.motoaccount.sdk.se.c`）的 startCountDown 在附近分享开启后
- * 发送延迟消息 (what=1, delay=600000ms=10min)，handler 收到消息后调用
- * `MotoDiscoveryManager.B(false)` 自动关闭。此 Hook 将 startCountDown
- * 替换为空操作，阻止倒计时启动。
+ * Mechanism: FileUnionSwitchManager (obfuscated as `com.motorola.motoaccount.sdk.se.c` in current version)
+ * sends a delayed message (what=1, delay=600000ms=10min) in startCountDown after nearby share is enabled;
+ * handler receives the message and calls `MotoDiscoveryManager.B(false)` to turn it off automatically.
+ * This Hook replaces startCountDown with a no-op, preventing countdown startup.
  *
- * 目标方法经过混淆，由 DexIndexer 以日志串 "startCountDown()" 定位，
- * 并回退到当前版本硬编码的类名/方法名。
+ * The target method is obfuscated, located by DexIndexer via the log string "startCountDown()",
+ * and falls back to hardcoded class/method names in current version.
  */
 class DisableNearbyShareAutoOffHook : AppHookModule() {
 
     companion object {
         private val TARGET_PACKAGE = ScopeKeys.MOBILE_DESKTOP.packageName
-        // 回退：当前版本（FileUnionSwitchManager）的硬编码类名和方法名
+        // Fallback: Hardcoded class and method name for current version (FileUnionSwitchManager)
         private const val FALLBACK_CLASS = "com.motorola.motoaccount.sdk.se.c"
         private const val FALLBACK_METHOD = "b"
     }
@@ -34,7 +33,7 @@ class DisableNearbyShareAutoOffHook : AppHookModule() {
     override fun handleLoadPackage(param: XposedModuleInterface.PackageLoadedParam) {
         val classLoader = param.defaultClassLoader
 
-        // ── 从离线索引读取混淆类名/方法名 ─────────────────────────────
+        // ── Read obfuscated class/method names from offline index ─────────────────────────────
         val module = DexIndexStore.lookup(xposed, ScopeKeys.MOBILE_DESKTOP.packageName)
             ?.getAsJsonObject(DexIndexConstants.ModuleKeys.DISABLE_NEARBY_SHARE_COUNTDOWN)
         val targetClassName = module?.get(DexIndexConstants.Keys.TARGET_CLASS)
@@ -42,7 +41,7 @@ class DisableNearbyShareAutoOffHook : AppHookModule() {
         val targetMethodName = module?.get(DexIndexConstants.Keys.TARGET_METHOD)
             ?.takeIf { !it.isJsonNull }?.asString ?: FALLBACK_METHOD
 
-        // ── 安装 Hook ─────────────────────────────────────────────
+        // ── Install Hook ─────────────────────────────────────────────
         try {
             val targetClass = classLoader.loadClass(targetClassName)
 

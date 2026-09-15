@@ -7,11 +7,11 @@ import io.github.libxposed.api.XposedInterface
 import io.github.libxposed.api.XposedModuleInterface
 
 /**
- * Split Screen强制分屏功能Hook模块（系统框架端）
- * 通过Hook OneModeService清空分屏黑名单，实现强制分屏功能
+ * Mandatory Split Screen hook module (system framework side).
+ * Hooks OneModeService to clear the split screen blacklist, enabling mandatory split screen.
  *
- * 与 setting.SplitScreenMandatory 共享同一偏好键名 [Split_Screen_mandatory]，
- * 确保两端同时启用/禁用。
+ * Shares the same preference key name [Split_Screen_mandatory] with setting.SplitScreenMandatory,
+ * ensuring both sides are enabled/disabled together.
  */
 @SuppressLint("PrivateApi")
 class SplitScreenMandatory : SystemHookModule() {
@@ -26,20 +26,20 @@ class SplitScreenMandatory : SystemHookModule() {
                 .loadClass("com.android.server.wm.OneModeService")
                 .getDeclaredMethod("initLocalBlackList")
             hookWithId(m, "hook_50") { chain: XposedInterface.Chain? ->
-                // 运行时检查模块是否启用，支持动态开关
+                // Runtime check if module is enabled to support dynamic toggling
                 if (!isEnabled()) {
                     return@hookWithId chain!!.proceed()
                 }
 
-                // 获取OneModeService实例
+                // Get OneModeService instance
                 val instance = chain!!.thisObject
 
-                // 获取mLocalmap字段（存储分屏黑名单的HashMap）
+                // Get mLocalmap field (HashMap storing split screen blacklist)
                 val field = instance.javaClass.getDeclaredField("mLocalmap")
                 field.isAccessible = true
                 val mLocalmap = field.get(instance) as HashMap<*, *>?
 
-                // 清空mLocalmap，确保分屏黑名单为空
+                // Clear mLocalmap to ensure the split screen blacklist is empty
                 if (mLocalmap != null) {
                     mLocalmap.clear()
                     logger.debug("Successfully cleared split screen blacklist")

@@ -156,8 +156,8 @@ switch's `titleRes` in `parentTitleRes`.
 - Full-screen route `SearchRoute`-style scaffold: `ZToolScaffold` + `ZToolTopAppBar`
   with a back arrow and an embedded `TextField` (focus on entry, IME action = Search).
 - Results grouped: "Feature cards" section first (if any), then per-screen groups
-  ("系统框架 › 条目名"), each result row showing title + summary + conditional-child note
-  ("需先开启〈parent〉" using `parentTitleRes`).
+  ("System Framework › Item Name"), each result row showing title + summary + conditional-child note
+  ("Requires enabling <parent> first" using `parentTitleRes`).
 - Row click → `onResultSelected(entry)` → NavHost executes:
   - feature card → `navigate(MainRoute.Features.name)` then `navigate(featureDestination.route)`
     (two-step so back stack reads Features › detail, matching normal browsing);

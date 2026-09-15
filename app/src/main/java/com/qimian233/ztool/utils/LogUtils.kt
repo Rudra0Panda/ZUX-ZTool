@@ -12,7 +12,7 @@ import java.util.Date
 import java.util.Locale
 
 /**
- * 日志工具类：管理应用日志（导出、清理、LSPosed 同步）
+ * Log utility class: manages application logs (export, cleanup, LSPosed sync)
  */
 object LogUtils {
     private const val TAG = "LogUtils"
@@ -62,7 +62,7 @@ object LogUtils {
     }
 
     /**
-     * 清理应用日志：如果 Log/app/ 目录下文件总大小超过 10MB，则全部删除
+     * Clean up app logs: if total size of files under Log/app/ exceeds 10MB, delete all
      */
     fun cleanupAppLogsIfNeeded(context: Context) {
         val dir = appLogDir(context)
@@ -73,7 +73,7 @@ object LogUtils {
         val maxSize = 10L * 1024 * 1024 // 10MB
 
         if (totalSize > maxSize) {
-            Log.i(TAG, "应用日志总大小 $totalSize 超过 10MB，自动清理")
+            Log.i(TAG, "Total app log size $totalSize exceeds 10MB, cleaning up automatically")
             for (file in files) {
                 file.delete()
             }
@@ -81,31 +81,31 @@ object LogUtils {
     }
 
     /**
-     * 删除所有日志（app + lsposed）
+     * Delete all logs (app + lsposed)
      */
     fun deleteAllLogs(context: Context) {
         val dir = logDir(context)
         if (dir.exists() && dir.isDirectory()) {
             FileUtils.deleteRecursive(dir)
-            Log.i(TAG, "所有日志已删除")
+            Log.i(TAG, "All logs deleted")
         }
     }
 
     /**
-     * 从 /data/adb/lspd/log 同步 LSPosed 日志到应用私有目录
-     * 需要 Root 权限，全部通过 shell 完成（避免无 root 的 File.exists 误判）
+     * Synchronize LSPosed logs from /data/adb/lspd/log to app's private directory
+     * Requires Root permission, all done via shell (avoids rootless File.exists misjudgment)
      */
     fun syncLsposedLogs(context: Context) {
         val destDir = lsposedLogDir(context)
         if (!destDir.exists() && !destDir.mkdirs()) {
-            Log.w(TAG, "无法创建 LSPosed 日志目标目录")
+            Log.w(TAG, "Unable to create LSPosed log destination directory")
             return
         }
 
         val destPath = destDir.absolutePath
         val shell = EnhancedShellExecutor.getInstance()
 
-        // 用 root shell 检查源目录是否存在，存在则拷贝
+        // Check if source directory exists using root shell, copy if present
         val result = shell.executeRootCommand(
             "if [ -d /data/adb/lspd/log ]; then" +
             " cp -rf /data/adb/lspd/log/* $destPath" +
@@ -115,20 +115,20 @@ object LogUtils {
         )
 
         if (!result.isSuccess) {
-            Log.w(TAG, "LSPosed 日志同步失败: ${result.error}")
+            Log.w(TAG, "LSPosed log sync failed: ${result.error}")
             showSyncFailedToast(context)
             return
         }
 
         when {
             result.output.contains("SYNC_OK") -> {
-                Log.i(TAG, "LSPosed 日志同步成功")
+                Log.i(TAG, "LSPosed log sync succeeded")
             }
             result.output.contains("SRC_MISSING") -> {
-                Log.d(TAG, "LSPosed 日志目录不存在，跳过同步")
+                Log.d(TAG, "LSPosed log directory does not exist, skipping sync")
             }
             else -> {
-                Log.w(TAG, "LSPosed 日志同步结果未知: ${result.output}")
+                Log.w(TAG, "LSPosed log sync result unknown: ${result.output}")
             }
         }
     }

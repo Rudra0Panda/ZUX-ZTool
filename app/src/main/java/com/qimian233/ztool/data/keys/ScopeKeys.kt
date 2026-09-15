@@ -8,9 +8,9 @@ enum class HowToRestart {
     Reboot
 }
 /**
- * 存储作用域包名的字符串变量。减少错误和重复输入，让 IDE 自动补全搞定一切。
+ * String variables storing scope package names. Reduces errors and repetitive typing, letting IDE auto-completion handle everything.
  * 
- * 可以改良一下，再描述一个优先推荐的重启作用域方式
+ * Can be refined to also describe a preferred restart method for the scope.
  * 
  */
 object ScopeKeys { 

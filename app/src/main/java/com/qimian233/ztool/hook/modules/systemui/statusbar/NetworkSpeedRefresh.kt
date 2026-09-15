@@ -7,12 +7,15 @@ import io.github.libxposed.api.XposedModuleInterface
 import java.lang.reflect.Method
 
 /**
- * 测试 Hook — 验证 NetworkSpeedView 中 sendEmptyMessageDelayed 控制刷新间隔的猜想。
+ * Test hook — verifies the hypothesis that NetworkSpeedView uses
+ * sendEmptyMessageDelayed to control the refresh interval.
  *
- * Hook android.os.Handler.sendEmptyMessageDelayed(int, long)，
- * 当调用方是 NetworkSpeedView 的内部 Handler 时，记录 what 和 delayMillis。
+ * Hooks android.os.Handler.sendEmptyMessageDelayed(int, long).
+ * When the caller is NetworkSpeedView's internal Handler, logs the what value and
+ * delayMillis.
  *
- * getModuleName() 返回 "test_hook"，始终启用，无需前端开关。
+ * getModuleName() returns "test_hook"; it is always enabled and does not require a
+ * frontend toggle.
  */
 @SuppressLint("PrivateApi")
 class NetworkSpeedRefresh : AppHookModule() {
@@ -52,7 +55,7 @@ class NetworkSpeedRefresh : AppHookModule() {
                 val what = chain.args[0] as Int
                 val delayMillis = chain.args[1] as Long
 
-                // 判断是否为 NetworkSpeedView 的内部 Handler
+                // Check whether this is NetworkSpeedView's internal Handler.
                 val handlerClassName = handler.javaClass.name
                 if (handlerClassName.startsWith("$NETWORK_SPEED_VIEW_CLASS$")) {
                     logger.debug(
@@ -60,7 +63,7 @@ class NetworkSpeedRefresh : AppHookModule() {
                             "handler=$handlerClassName, what=$what, delayMillis=$delayMillis ms"
                     )
 
-                    // 可选：将间隔改为 1 秒验证效果（取消注释下一行）
+                    // Optional: set the interval to 1 second to verify the effect (uncomment the next line).
                     chain.proceed(arrayOf<Any>(what, refreshInterval))
                 } else {
                     chain.proceed()

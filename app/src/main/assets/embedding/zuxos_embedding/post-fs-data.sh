@@ -2,7 +2,7 @@
 
 MODDIR=${0%/*}
 
-# 确保配置目录存在
+# Ensure configuration directory exists
 TARGET_DIR="/data/system/zui/embedding"
 if [ ! -d "$TARGET_DIR" ]; then
     mkdir -p $TARGET_DIR
@@ -10,7 +10,7 @@ if [ ! -d "$TARGET_DIR" ]; then
     chown system:system $TARGET_DIR
 fi
 
-# 确保配置文件存在且权限正确
+# Ensure configuration file exists and has correct permissions
 if [ -f "$MODDIR/embedding_config.json" ]; then
     cp -f $MODDIR/embedding_config.json $TARGET_DIR/embedding_config.json
     chmod 0644 $TARGET_DIR/embedding_config.json

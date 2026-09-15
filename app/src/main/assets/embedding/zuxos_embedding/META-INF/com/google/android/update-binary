@@ -2,27 +2,27 @@
 
 ####################################################
 #
-# Magisk 模块安装脚本模板
+# Magisk Module Installer Script Template
 # by topjohnwu
-# 20.3+版本适配汉化: Pinkdoge
+# Adaptation & English translation
 #
 #####################################################
 
 umask 022
 
-# 全局变量
+# Global variables
 TMPDIR=/dev/tmp
 PERSISTDIR=/sbin/.magisk/mirror/persist
 
 rm -rf $TMPDIR 2>/dev/null
 mkdir -p $TMPDIR
 
-# 在加载 util_functions 前 echo
+# Echo before loading util_functions
 ui_print() { echo "$1"; }
 
 require_new_magisk() {
   ui_print "*******************************"
-  ui_print " 请安装 Magisk v20.3+! "
+  ui_print " Please install Magisk v20.3+! "
   ui_print "*******************************"
   exit 1
 }
@@ -41,12 +41,12 @@ print_modname() {
   ui_print " $MODNAME "
   ui_print "$pounds"
   ui_print "******************************"
-  ui_print " 由 Magisk 提供技术支持(在安装模块时打印作者信息) "
+  ui_print " Powered by Magisk "
   ui_print "******************************"
 }
 
 ##############
-# 环境设置
+# Environment Setup
 ##############
 
 OUTFD=$2
@@ -54,30 +54,30 @@ ZIPFILE=$3
 
 mount /data 2>/dev/null
 
-# 加载公用函数
+# Load common functions
 [ -f /data/adb/magisk/util_functions.sh ] || require_new_magisk
 . /data/adb/magisk/util_functions.sh
 [ $MAGISK_VER_CODE -gt 18100 ] || require_new_magisk
 
-# 准备卡刷 zip 包
+# Prepare flashable zip
 setup_flashable
 
-# 挂载分区
+# Mount partitions
 mount_partitions
 
-# 检测版本和架构
+# Detect version and architecture
 api_level_arch_detect
 
-# 安装 busybox 和二进制文件
+# Install busybox and binaries
 $BOOTMODE && boot_actions || recovery_actions
 
 ##############
-# 准备
+# Preparation
 ##############
 
-# 提取公共文件
+# Extract common files
 unzip -o "$ZIPFILE" module.prop -d $TMPDIR >&2
-[ ! -f $TMPDIR/module.prop ] && abort "! 从 zip 中提取文件失败!"
+[ ! -f $TMPDIR/module.prop ] && abort "! Failed to extract files from zip!"
 
 $BOOTMODE && MODDIRNAME=modules_update || MODDIRNAME=modules
 MODULEROOT=$NVBASE/$MODDIRNAME
@@ -85,43 +85,43 @@ MODID=`grep_prop id $TMPDIR/module.prop`
 MODPATH=$MODULEROOT/$MODID
 MODNAME=`grep_prop name $TMPDIR/module.prop`
 
-# 创建模块路径
+# Create module path
 rm -rf $MODPATH 2>/dev/null
 mkdir -p $MODPATH
 
 ##########
-# 安装
+# Installation
 ##########
 
 if is_legacy_script; then
   unzip -oj "$ZIPFILE" module.prop install.sh uninstall.sh 'common/*' -d $TMPDIR >&2
 
-  # 加载安装脚本
+  # Load installation script
   . $TMPDIR/install.sh
 
-  # 打印模块名称
+  # Print module name
   print_modname
   on_install
 
-  # 加载自定义卸载脚本
+  # Load custom uninstall script
   [ -f $TMPDIR/uninstall.sh ] && cp -af $TMPDIR/uninstall.sh $MODPATH/uninstall.sh
 
-  # 取消挂载
+  # Skip mount
   $SKIPMOUNT && touch $MODPATH/skip_mount
 
-  # prop 文件
+  # prop file
   $PROPFILE && cp -af $TMPDIR/system.prop $MODPATH/system.prop
 
-  # 模块信息
+  # Module information
   cp -af $TMPDIR/module.prop $MODPATH/module.prop
 
-  # post-fs-data 模式脚本
+  # post-fs-data mode script
   $POSTFSDATA && cp -af $TMPDIR/post-fs-data.sh $MODPATH/post-fs-data.sh
 
-  # service 模式脚本
+  # service mode script
   $LATESTARTSERVICE && cp -af $TMPDIR/service.sh $MODPATH/service.sh
 
-  ui_print "- 正在设置权限"
+  ui_print "- Setting permissions"
   set_permissions
 else
   print_modname
@@ -129,20 +129,20 @@ else
   unzip -o "$ZIPFILE" customize.sh -d $MODPATH >&2
 
   if ! grep -q '^SKIPUNZIP=1$' $MODPATH/customize.sh 2>/dev/null; then
-    ui_print "- 正在提取模块文件"
+    ui_print "- Extracting module files"
     unzip -o "$ZIPFILE" -x 'META-INF/*' -d $MODPATH >&2
 
-    # 默认权限
+    # Default permissions
     set_perm_recursive $MODPATH 0 0 0755 0644
   fi
 
-  # 加载 customization 脚本
+  # Load customization script
   [ -f $MODPATH/customize.sh ] && . $MODPATH/customize.sh
 fi
 
-# 处理 replace 文件夹
+# Process replace folder
 for TARGET in $REPLACE; do
-  ui_print "- 正在删除目标文件: $TARGET"
+  ui_print "- Removing target file: $TARGET"
   mktouch $MODPATH$TARGET/.replace
 done
 
@@ -152,26 +152,26 @@ if $BOOTMODE; then
   cp -af $MODPATH/module.prop $NVBASE/modules/$MODID/module.prop
 fi
 
-# 安装自定义 sepolicy 补丁
+# Install custom sepolicy patch
 if [ -f $MODPATH/sepolicy.rule -a -e $PERSISTDIR ]; then
-  ui_print "- 安装自定义 sepolicy 补丁"
+  ui_print "- Installing custom sepolicy patch"
   PERSISTMOD=$PERSISTDIR/magisk/$MODID
   mkdir -p $PERSISTMOD
   cp -af $MODPATH/sepolicy.rule $PERSISTMOD/sepolicy.rule
 fi
 
-# 删除 placeholder 文件
+# Remove placeholder files
 rm -rf \
 $MODPATH/system/placeholder $MODPATH/customize.sh \
 $MODPATH/README.md $MODPATH/.git* 2>/dev/null
 
 ##############
-# 结束
+# Finish
 ##############
 
 cd /
 $BOOTMODE || recovery_cleanup
 rm -rf $TMPDIR
 
-ui_print "- 完成"
+ui_print "- Done"
 exit 0

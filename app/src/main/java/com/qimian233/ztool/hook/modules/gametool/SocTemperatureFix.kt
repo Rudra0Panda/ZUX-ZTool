@@ -12,6 +12,8 @@ import java.io.IOException
 /**
  * SOC温度修复Hook模块
  * 功能：拦截游戏服务的温度读取方法，从thermal_zone9文件获取真实温度值
+ * SOC temperature fix Hook module.
+ * Function: Intercepts game service temperature reading methods to fetch real temperature values from thermal_zone9.
  */
 class SocTemperatureFix : AppHookModule() {
     override fun getModuleName(): String = PreferenceKeys.FIX_SOC_TEMP.name
@@ -22,6 +24,7 @@ class SocTemperatureFix : AppHookModule() {
         val classLoader = param.defaultClassLoader
         val packageName = param.packageName
         logger.debug("SocTemperatureFix: 开始处理包 $packageName")
+        logger.debug("SocTemperatureFix: Processing package $packageName")
         hookZuiGameService(classLoader)
     }
 
@@ -31,6 +34,7 @@ class SocTemperatureFix : AppHookModule() {
                 classLoader.loadClass("com.zui.game.service.util.HWDataInterface")
 
             // Hook getTemp 方法
+            // Hook getTemp method
             val getTempMethod = hwDataInterfaceClass.getDeclaredMethod("getTemp")
             hookWithId(getTempMethod, "get_temp") { chain ->
                 logger.info("Block call to getTemp()")
@@ -46,6 +50,7 @@ class SocTemperatureFix : AppHookModule() {
             }
 
             // Hook getThermalTemp 方法
+            // Hook getThermalTemp method
             val getThermalTempMethod = hwDataInterfaceClass.getDeclaredMethod(
                 "getThermalTemp",
                 Int::class.javaPrimitiveType
@@ -75,6 +80,8 @@ class SocTemperatureFix : AppHookModule() {
     /**
      * 从 thermal_zone9 文件读取温度
      * @return 温度值（毫摄氏度），读取失败返回 -1
+     * Read temperature from thermal_zone9 file.
+     * @return Temperature value (millidegrees Celsius), returns -1 if read fails.
      */
     private fun readTemperatureFromFile(): Int {
         val thermalFile = File(THERMAL_FILE_PATH)
@@ -82,6 +89,7 @@ class SocTemperatureFix : AppHookModule() {
         if (!thermalFile.exists()) {
             logger.warn("Temperature file does not exist: $THERMAL_FILE_PATH")
             // 尝试其他可能的thermal文件路径
+            // Try alternative thermal file paths
             return tryAlternativeThermalFiles()
         }
 
@@ -110,6 +118,7 @@ class SocTemperatureFix : AppHookModule() {
 
     /**
      * 尝试其他可能的thermal文件路径
+     * Try alternative thermal file paths.
      */
     private fun tryAlternativeThermalFiles(): Int {
         val alternativePaths = arrayOf(
@@ -145,6 +154,7 @@ class SocTemperatureFix : AppHookModule() {
             logger.error("Failed to read temperature file: $filePath", e)
         }
         // 忽略关闭异常
+        // Ignore close exception
         return -1
     }
 

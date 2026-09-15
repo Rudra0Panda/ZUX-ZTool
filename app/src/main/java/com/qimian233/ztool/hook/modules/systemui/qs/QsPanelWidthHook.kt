@@ -13,13 +13,13 @@ import com.qimian233.ztool.hook.base.AppHookModule
 import io.github.libxposed.api.XposedModuleInterface
 
 /**
- * 修改 QS 面板宽度并保证子控件正确扩展和对齐。
+ * Modify QS panel width and ensure child views expand and align properly.
  *
- * 核心策略：不改 QSContainerImpl，而是改它的父容器 qs_frame (FrameLayout)。
- * 缩窄 qs_frame 的测量宽度并居中后，QSContainerImpl 及所有子控件
- * 的 layout bounds 自然匹配视觉范围，TouchHandler 无需额外修补。
+ * Core strategy: Instead of modifying QSContainerImpl, modify its parent container qs_frame (FrameLayout).
+ * After narrowing qs_frame's measured width and centering it, QSContainerImpl and all child view
+ * layout bounds naturally match the visual scope, requiring no extra fixes for TouchHandler.
  *
- * 仅在竖屏 (Portrait) 下生效，横屏时直接透传原始逻辑。
+ * Only takes effect in Portrait mode; passes through original logic directly in landscape.
  */
 @SuppressLint("PrivateApi", "DiscouragedApi")
 class QsPanelWidthHook : AppHookModule() {
@@ -44,9 +44,9 @@ class QsPanelWidthHook : AppHookModule() {
             .coerceIn(0, 10)
         val targetWidthRatio = widthPercent / 100f
 
-        // ── 核心：Hook qs_frame 的 onMeasure ──
-        // 缩窄 qs_frame（QSContainerImpl 的父容器）并居中，
-        // 所有后代控件的 layout bounds 自然匹配视觉，保留原生触控行为。
+        // ── Core: Hook qs_frame's onMeasure ──
+        // Narrow qs_frame (parent container of QSContainerImpl) and center it;
+        // layout bounds of all descendant views naturally match visual bounds, preserving native touch behavior.
         var cachedQsFrameId = -1
         val onMeasureMethod = findMethod(
             FrameLayout::class.java,
@@ -111,7 +111,7 @@ class QsPanelWidthHook : AppHookModule() {
 
         logger.info("QsPanelWidthTestHook: hooked FrameLayout.onMeasure for qs_frame")
 
-        // ── Hook FrameLayout.onLayout：拉伸 SeekBar ──
+        // ── Hook FrameLayout.onLayout: Stretch SeekBar ──
         var cachedVolumeRowSliderFrameId = -1
         val onLayoutMethod = findMethod(
             FrameLayout::class.java,
@@ -158,7 +158,7 @@ class QsPanelWidthHook : AppHookModule() {
 
         logger.info("QsPanelWidthTestHook: hooked FrameLayout.onLayout for SeekBar stretch")
 
-        // ── Hook PagedTileLayout.onMeasure：磁贴列数 ──
+        // ── Hook PagedTileLayout.onMeasure: Tile columns ──
         val pagedTileLayoutClass = param.defaultClassLoader
             .loadClass("com.android.systemui.qs.PagedTileLayout")
         val tileLayoutClass = param.defaultClassLoader
@@ -179,7 +179,7 @@ class QsPanelWidthHook : AppHookModule() {
                 if (orientation == Configuration.ORIENTATION_PORTRAIT) {
                     val pages = pagesField.get(pagedLayout) as ArrayList<*>
                     if (pages.isNotEmpty()) {
-                        // 仅在列数真正变化时才触发重新分配，避免每帧 onMeasure 都重建页面
+                        // Only trigger reallocation when column count actually changes, avoiding rebuilding pages on every frame onMeasure
                         val currentColumns = columnsField.getInt(pages[0])
                         if (currentColumns != tileColumns) {
                             for (page in pages) {
@@ -195,7 +195,7 @@ class QsPanelWidthHook : AppHookModule() {
 
         logger.info("QsPanelWidthTestHook: hooked PagedTileLayout.onMeasure for tile columns")
 
-        // ── Hook QQSSideLabelTileLayout.onMeasure：QQS 磁贴列数 ──
+        // ── Hook QQSSideLabelTileLayout.onMeasure: QQS tile columns ──
         val qqsTileLayoutClass = param.defaultClassLoader
             .loadClass($$"com.android.systemui.qs.QuickQSPanel$QQSSideLabelTileLayout")
         val qqsMeasureMethod = findMethod(
@@ -208,7 +208,7 @@ class QsPanelWidthHook : AppHookModule() {
         val quickQSPanelClass = param.defaultClassLoader
             .loadClass("com.android.systemui.qs.QuickQSPanel")
         val maxTilesField = findField(quickQSPanelClass, "mMaxTiles")
-        // mTileLayout 定义在 QSPanel（QuickQSPanel 的父类），用于读取当前的 mMaxAllowedRows
+        // mTileLayout defined in QSPanel (superclass of QuickQSPanel), used to read current mMaxAllowedRows
         val qsPanelTileLayoutField = findField(quickQSPanelClass, "mTileLayout")
 
         hookWithId(qqsMeasureMethod, "tile_columns_qqs") { chain ->
@@ -216,7 +216,7 @@ class QsPanelWidthHook : AppHookModule() {
                 val tileLayout = chain.thisObject as View
                 val orientation = tileLayout.context.resources.configuration.orientation
                 if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    // 仅在列数真正变化时才写入，避免不必要的字段更新
+                    // Only write when column count actually changes, avoiding unnecessary field updates
                     val currentColumns = columnsField.getInt(tileLayout)
                     if (currentColumns != tileColumns) {
                         columnsField.setInt(tileLayout, tileColumns)
@@ -233,14 +233,14 @@ class QsPanelWidthHook : AppHookModule() {
 
         logger.info("QsPanelWidthTestHook: hooked QQSSideLabelTileLayout.onMeasure for QQS tile columns")
 
-        // ── Hook QuickQSPanelController.onConfigurationChanged：主题切换后恢复 mMaxTiles ──
-        // QuickQSPanelController.onConfigurationChanged() 会从资源读取默认值重置 mMaxTiles
-        // 并立即调用 setTiles() 截断磁贴列表。本 Hook 在原方法执行后重新应用自定义值并刷新。
+        // ── Hook QuickQSPanelController.onConfigurationChanged: Restore mMaxTiles after theme change ──
+        // QuickQSPanelController.onConfigurationChanged() resets mMaxTiles from resource default
+        // and immediately calls setTiles() which truncates the tile list. This hook reapplies custom value and refreshes after the original method runs.
         val controllerClass = param.defaultClassLoader
             .loadClass("com.android.systemui.qs.QuickQSPanelController")
         val controllerOnConfigMethod = findMethod(controllerClass, "onConfigurationChanged")
         val controllerSetTilesMethod = findMethod(controllerClass, "setTiles")
-        // mView 定义在 ViewController（QuickQSPanelController 的祖先）
+        // mView defined in ViewController (ancestor of QuickQSPanelController)
         val controllerViewField = findField(controllerClass, "mView")
 
         hookWithId(controllerOnConfigMethod, "qqs_max_tiles_config_fix") { chain ->
@@ -251,7 +251,7 @@ class QsPanelWidthHook : AppHookModule() {
                 if (!quickQSPanelClass.isInstance(panel)) return@hookWithId null
                 val orientation = panel.context.resources.configuration.orientation
                 if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    // 从 QuickQSPanel 的 mTileLayout 读取当前 mMaxAllowedRows
+                    // Read current mMaxAllowedRows from QuickQSPanel's mTileLayout
                     val tileLayout = qsPanelTileLayoutField.get(panel) ?: return@hookWithId null
                     val rows = maxAllowedRowsField.getInt(tileLayout)
                     if (rows > 0) {

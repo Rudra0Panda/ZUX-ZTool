@@ -16,6 +16,7 @@ class DisableDockBar : AppHookModule() {
         val classLoader = param.defaultClassLoader
 
         logger.info("开始Hook ZUI Launcher Dock栏")
+        logger.info("Starting hook for ZUI Launcher Dock bar")
 
         try {
             val zuiHotSeatClass = classLoader.loadClass("com.zui.launcher.uiextend.ZuiHotseat")
@@ -34,8 +35,10 @@ class DisableDockBar : AppHookModule() {
                 chain.proceed()
             }
             logger.info("ZuiHotseat.setVisibility Hook完成")
+            logger.info("ZuiHotseat.setVisibility hook completed")
         } catch (t: Throwable) {
             logger.error("Hook ZuiHotseat.setVisibility失败", t)
+            logger.error("Failed to hook ZuiHotseat.setVisibility", t)
         }
     }
 

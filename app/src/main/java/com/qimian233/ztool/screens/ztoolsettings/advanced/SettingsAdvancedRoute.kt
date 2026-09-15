@@ -108,7 +108,7 @@ fun SettingsAdvancedRoute(
     val resetResultSummary = buildResetResultSummary(uiState, context)
     val resetStartingString = stringResource(R.string.page_settings_advanced_reset_starting)
 
-    // ── DexKit 索引 ────────────────────────────────────────────────
+    // ── DexKit Index ────────────────────────────────────────────────
     var dexIndexSummary by remember { mutableStateOf(buildDexIndexSummary(context)) }
 
     if (uiState.showHotReloadDialog) {
@@ -132,7 +132,7 @@ fun SettingsAdvancedRoute(
         )
     }
 
-    // DexKit 手动刷新：前台进度 Dialog + 完成后 Toast 结果
+    // DexKit manual refresh: foreground progress dialog + toast result upon completion
     if (dexIndexState.refreshing) {
         DexIndexProgressDialog(progress = dexIndexState.progress)
     }
@@ -570,7 +570,7 @@ private fun HotReloadConfirmDialog(
 }
 
 /**
- * 汇总 DexKit 索引状态：取各作用域最近一次成功索引时间，格式化为显示文本。
+ * Summarize DexKit index status: retrieves the latest successful indexing time across scopes, formatted as display text.
  */
 private fun buildDexIndexSummary(context: Context): String {
     val latest = DexIndexRegistry.indexers

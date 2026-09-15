@@ -184,12 +184,12 @@ the parent row light up.)
 ### Step 8 — Verification
 1. `.\gradlew.bat assembleDebug` clean.
 2. Manual matrix (user-side, real device):
-   - plain switch row (e.g. 搜索「隐藏蓝点」) → lands Launcher screen, scrolls, row pulses twice;
-   - conditional child with parent ON (e.g. 行数滑条, after enabling 自定义网格) → row pulses;
+   - plain switch row (e.g. search "Hide blue dot") → lands Launcher screen, scrolls, row pulses twice;
+   - conditional child with parent ON (e.g. row count slider, after enabling Custom Grid) → row pulses;
    - conditional child with parent OFF → parent switch row pulses after ≤1.6s;
-   - REQUIRE_OFF child (安装包管理器 rows with 行样式 enabled) → same fallback logic
+   - REQUIRE_OFF child (Package Installer rows with row style enabled) → same fallback logic
      (parent row pulses when the child is invisible);
-   - theme rows style-gated (AMOLED 黑 in Miuix style) → falls back to… nothing (no
+   - theme rows style-gated (AMOLED black in Miuix style) → falls back to… nothing (no
      parentKey) → lands on screen, no highlight, no crash. Acceptable; note in docs.
    - Miuix AND Material3Expressive both exercised.
    - back from screen → no re-pulse; rotate device → no re-pulse.

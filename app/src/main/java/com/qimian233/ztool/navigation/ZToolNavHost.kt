@@ -520,7 +520,7 @@ internal fun MainRouteNavHost(
         ) { backStackEntry ->
             AnimationWallpaperSettingsRoute(
                 title = stringResource(R.string.system_ui_app_name) +
-                        " — 动画与壁纸",
+                        stringResource(R.string.system_ui_animation_wallpaper_title_suffix),
                 onBack = {
                     if (!navController.popBackStack()) {
                         navController.navigate(FeatureDestination.SystemUi.route) {

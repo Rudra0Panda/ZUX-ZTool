@@ -19,15 +19,15 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
-# 1. 保持 Xposed 库的接口不被混淆
+# 1. Keep Xposed library interfaces from being obfuscated
 -keep interface de.robv.android.xposed.** { *; }
-# 2. 入口类不被混淆/重命名
+# 2. Entry class must not be obfuscated/renamed
 -keep class com.qimian233.ztool.hook.HookInit { *; }
-# 3. 如果 HookManager 中使用了反射查找自身的方法，也建议保持
+# 3. If HookManager uses reflection to look up its own methods, keep it as well
 -keep class com.qimian233.ztool.hook.base.HookManager { *; }
-# 4. 保持 HiddenApiBypass 库
+# 4. Keep HiddenApiBypass library
 -keep class org.lsposed.hiddenapibypass.** { *; }
-# 5. 一般性的反射保护
+# 5. General reflection protection
 -keepattributes Signature
 -keepattributes Exceptions
 -keepattributes InnerClasses

@@ -201,19 +201,19 @@ def main():
         json.dump(new_entries, f, ensure_ascii=False, indent=2)
 
     stats = {"converted": 0, "lossy": 0, "dropped": 0}
-    lines = ["# onevision -> embedding_config 转换报告", ""]
+    lines = ["# onevision -> embedding_config Conversion Report", ""]
     for pkg, (status, src, note) in notes.items():
         stats[status] = stats.get(status, 0) + 1
         line = f"- **{pkg}** [{status}] ({src})"
         if note:
             line += f": {note}"
         lines.append(line)
-    summary = ["", "## 统计", "",
-               f"- converted（可并入）: {stats.get('converted', 0)}",
-               f"- lossy（骨架/有损，需人工补 mainPage）: {stats.get('lossy', 0)}",
-               f"- dropped（无对应语义，已丢弃）: {stats.get('dropped', 0)}",
-               f"- 已存在于 embedding_config.json，未输出: {len(dup)}",
-               f"- 实际输出新条目: {len(new_entries)}", ""]
+    summary = ["", "## Statistics", "",
+               f"- converted (mergeable): {stats.get('converted', 0)}",
+               f"- lossy (skeleton/lossy, manually supply mainPage): {stats.get('lossy', 0)}",
+               f"- dropped (no matching semantics, discarded): {stats.get('dropped', 0)}",
+               f"- already exists in embedding_config.json, omitted: {len(dup)}",
+               f"- actual new entries output: {len(new_entries)}", ""]
     with open(os.path.join(OUT, "convert_report.md"), "w",
               encoding="utf-8") as f:
         f.write("\n".join(lines + summary))

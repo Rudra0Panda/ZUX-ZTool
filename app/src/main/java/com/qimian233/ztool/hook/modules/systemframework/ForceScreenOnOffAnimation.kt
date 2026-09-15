@@ -10,6 +10,8 @@ import java.lang.reflect.Constructor
 /**
  * 强制启用 DisplayPowerController 的屏幕开/关 Color Fade 动画，
  * 并通过偏好设置 [PreferenceKeys.SCREEN_ON_OFF_ANIMATION_MS] 自定义动画时长。
+ * Force enable DisplayPowerController screen on/off Color Fade animation,
+ * with customizable animation duration via preference [PreferenceKeys.SCREEN_ON_OFF_ANIMATION_MS].
  */
 @SuppressLint("PrivateApi")
 class ForceScreenOnOffAnimation : SystemHookModule() {

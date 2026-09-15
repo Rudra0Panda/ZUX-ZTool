@@ -10,6 +10,8 @@ import kotlin.math.min
 /**
  * 禁用游戏音频优化Hook模块
  * 拦截系统游戏音频属性设置，防止游戏模式干扰音频体验
+ * Disable game audio optimization Hook module.
+ * Intercepts system game audio property settings to prevent game mode from interfering with audio experience.
  */
 @SuppressLint("PrivateApi", "DiscouragedPrivateApi")
 class DisableGameAudio : SystemHookModule() {
@@ -28,6 +30,8 @@ class DisableGameAudio : SystemHookModule() {
     /**
      * 方法1：直接 Hook SystemProperties.set 方法
      * 拦截所有对 sys.audio.game_name 的设置
+     * Method 1: Directly hook SystemProperties.set method.
+     * Intercepts all settings to sys.audio.game_name.
      */
     private fun hookSystemProperties(classLoader: ClassLoader) {
         try {
@@ -44,6 +48,7 @@ class DisableGameAudio : SystemHookModule() {
                     logger.debug("Blocked SystemProperties.set for $key = $value")
 
                     // 打印调用栈以调试
+                    // Print call stack for debugging
                     val stackTrace = Thread.currentThread().stackTrace
                     val stackTraceStr = StringBuilder()
                     for (i in 0..<min(stackTrace.size, 10)) {
@@ -52,6 +57,7 @@ class DisableGameAudio : SystemHookModule() {
                     logger.trace("Call stack:\n$stackTraceStr")
 
                     // 阻止设置该属性
+                    // Prevent setting this property
                     return@hookWithId null
                 }
                 chain.proceed()
@@ -66,6 +72,8 @@ class DisableGameAudio : SystemHookModule() {
     /**
      * 方法2：Hook PhoneWindowManager 中的 ZuiGameAppStateListener
      * 拦截游戏模式相关的设置
+     * Method 2: Hook ZuiGameAppStateListener in PhoneWindowManager.
+     * Intercepts game mode related settings.
      */
     private fun hookPhoneWindowManager(classLoader: ClassLoader) {
         try {
@@ -92,6 +100,7 @@ class DisableGameAudio : SystemHookModule() {
                 logger.info("Found target class for PhoneWindowManager")
             }
             // Hook ZuiGameAppStateListener 的 onGameAppStart 方法
+            // Hook ZuiGameAppStateListener.onGameAppStart method
             val onGameAppStartMethod = targetClass.getDeclaredMethod(
                 "onGameAppStart",
                 String::class.java,
@@ -107,6 +116,7 @@ class DisableGameAudio : SystemHookModule() {
             }
 
             // Hook ZuiGameAppStateListener 的 onGameAppExit 方法
+            // Hook ZuiGameAppStateListener.onGameAppExit method
             val onGameAppExitMethod = targetClass.getDeclaredMethod(
                 "onGameAppExit",
                 String::class.java,
@@ -130,6 +140,8 @@ class DisableGameAudio : SystemHookModule() {
     /**
      * 方法3：Hook AudioManager.setParameters 方法
      * 拦截 game_voip=true 的设置
+     * Method 3: Hook AudioManager.setParameters method.
+     * Intercepts setting game_voip=true.
      */
     private fun hookAudioManager(classLoader: ClassLoader) {
         try {
@@ -147,6 +159,7 @@ class DisableGameAudio : SystemHookModule() {
                     logger.debug("Blocked AudioManager.setParameters: $keyValuePairs")
 
                     // 阻止设置游戏VOIP参数
+                    // Prevent setting game VOIP parameters
                     return@hookWithId null
                 }
                 chain.proceed()

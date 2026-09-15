@@ -10,21 +10,21 @@ import io.github.libxposed.api.XposedModuleInterface.PackageLoadedParam
 import java.lang.reflect.Method
 
 /**
- * 设定（com.android.settings）应用图标去蒙版。
+ * Settings (com.android.settings) app icon unmask hook.
  *
- * 蒙版位置（探针 + 反编译确认）：应用列表图标汇聚点
- * settingslib.Utils#getBadgedIcon(Context, ApplicationInfo) 内部经由打包进
- * Settings APK 的 Launcher3 图标工厂（BaseIconFactory）展平为
- * FastBitmapDrawable（形状蒙版 + IconNormalizer 缩放），第三方图标包内容被
- * 二次裁切。
+ * Mask location (confirmed via probe + decompilation): App list icon convergence point
+ * settingslib.Utils#getBadgedIcon(Context, ApplicationInfo) flattens icons via Launcher3
+ * icon factory (BaseIconFactory) bundled in Settings APK into FastBitmapDrawable
+ * (shape mask + IconNormalizer scaling), resulting in third-party icon pack contents being cropped twice.
  *
- * 处理：after-hook 中若返回值是 FastBitmapDrawable，则用
- * getResourcesForApplication(info) + info.icon 直载目标包原始资源图标替换，
- * 绕过 PM 图标管线；原始资源缺失时保持原值。结果按 pkg#uid 缓存避免重复
- * 资源加载。AdaptiveIconDrawable 与传统 PNG 的原始形态均由列表容器自行缩放。
+ * Solution: If return value in after-hook is FastBitmapDrawable, replace it by directly loading
+ * target package's raw resource icon via getResourcesForApplication(info) + info.icon,
+ * bypassing PM icon pipeline; preserves original value if raw resource is missing. Results
+ * are cached by pkg#uid to avoid redundant resource loading. AdaptiveIconDrawable and traditional
+ * PNG original shapes are scaled naturally by list container.
  *
- * 已知边界：个别页面走 com.android.settings.Utils#getBadgedIcon(IconDrawableFactory,...)
- * 旁路（如应用信息头部），不在此钩点覆盖。生效需重启设定（AmStop）。
+ * Known boundary: Individual pages bypass this via com.android.settings.Utils#getBadgedIcon(IconDrawableFactory,...)
+ * (e.g. app info header), which is not covered by this hook point. Requires Settings restart (AmStop) to take effect.
  */
 class SettingsAppIconUnmaskHook : AppHookModule() {
 
@@ -32,7 +32,7 @@ class SettingsAppIconUnmaskHook : AppHookModule() {
 
     override fun getTargetPackages(): Array<String> = arrayOf(TARGET_PACKAGE)
 
-    /** pkg#uid -> 原始图标缓存；命中失败也缓存 null，避免反复资源查找 */
+    /** pkg#uid -> raw icon cache; cache null on misses to avoid repeated resource lookups */
     private val iconCache = HashMap<String, Drawable?>()
 
     override fun handleLoadPackage(param: PackageLoadedParam) {
@@ -74,7 +74,7 @@ class SettingsAppIconUnmaskHook : AppHookModule() {
         }
     }
 
-    /** 绕过 PackageManager 图标管线，直接从目标包资源加载原始图标（带缓存）。 */
+    /** Bypass PackageManager icon pipeline and load raw icon directly from target package resources (cached). */
     private fun loadRawIcon(context: Context, info: ApplicationInfo): Drawable? {
         val cacheKey = info.packageName + "#" + info.uid
         synchronized(iconCache) {

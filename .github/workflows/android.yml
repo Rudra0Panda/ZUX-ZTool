@@ -2,12 +2,12 @@ name: Android CI
 
 on:
   schedule:
-    - cron: '0 16 * * *'         # UTC 16:00 = 北京时间 (UTC+8) 次日 0:00
-  workflow_dispatch:              # 手动触发（总是构建）
+    - cron: '0 16 * * *'         # UTC 16:00 = 00:00 next day UTC+8
+  workflow_dispatch:              # Manual trigger (always builds)
   pull_request:
-    branches: [ "master" ]        # PR 触发 Debug 构建
+    branches: [ "master" ]        # PR triggers Debug build
 
-# 为 workflow run 设置友好的标题
+# Set a user-friendly title for the workflow run
 run-name: ${{ github.event_name == 'schedule' && 'Nightly' || github.event_name == 'workflow_dispatch' && 'Manual' || 'PR' }} build #${{ github.run_number }}
 
 jobs:
@@ -18,16 +18,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
         with:
-          fetch-depth: 0   # 需要完整历史以获取提交信息
+          fetch-depth: 0   # Full history needed for commit info
 
-      # ---- 获取当前 commit 信息 ----
+      # ---- Fetch current commit info ----
       - name: Get current commit info
         id: commit-info
         run: |
           echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
           echo "subject=$(git log -1 --pretty=%s)" >> $GITHUB_OUTPUT
 
-      # ---- 对于 schedule 和 workflow_dispatch 事件，尝试恢复上次构建的 SHA ----
+      # ---- For schedule and workflow_dispatch events, restore previous build SHA ----
       - name: Restore previous build commit SHA
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         id: cache-restore
@@ -37,7 +37,7 @@ jobs:
           key: nightly-commit-sha-master-${{ github.run_id }}
           restore-keys: nightly-commit-sha-master-
 
-      # ---- 获取从上次构建以来的全部提交记录 ----
+      # ---- Fetch all commits since previous build ----
       - name: Get commit range for summary
         id: commit-range
         run: |
@@ -51,7 +51,7 @@ jobs:
             echo "commits=- **\`$(git rev-parse --short HEAD)\`** $(git log -1 --pretty=%s) ($(git log -1 --pretty=%an))" >> $GITHUB_OUTPUT
           fi
 
-      # ---- 决定是否要构建 ----
+      # ---- Determine whether to build ----
       - name: Determine if build is needed
         id: check
         run: |
@@ -74,11 +74,11 @@ jobs:
               echo "No previous build SHA found, building."
             fi
           else
-            # 其他事件（理论上不会发生）均构建
+            # Other events (unexpected) build by default
             echo "should_build=true" >> $GITHUB_OUTPUT
           fi
 
-      # ---- 只在需要构建时才 setup JDK 和准备 gradlew ----
+      # ---- Set up JDK and prepare gradlew only if build is needed ----
       - name: Set up JDK 17
         if: steps.check.outputs.should_build == 'true'
         uses: actions/setup-java@v5
@@ -91,8 +91,8 @@ jobs:
         if: steps.check.outputs.should_build == 'true'
         run: chmod +x gradlew
 
-      # ---- 只有在需要时才执行构建 ----
-      # Debug 构建（PR 总是构建，其他事件则根据 should_build）
+      # ---- Build only when needed ----
+      # Debug build (PR always builds; others depend on should_build)
       - name: Build debug APK
         if: github.event_name == 'pull_request' || (github.event_name != 'pull_request' && steps.check.outputs.should_build == 'true')
         run: ./gradlew assembleDebug
@@ -107,7 +107,7 @@ jobs:
             app/build/outputs/apk/debug/output-metadata.json
           if-no-files-found: error
 
-      # ---- Release 构建（仅在 schedule 或 workflow_dispatch 且需要构建时） ----
+      # ---- Release build (schedule or workflow_dispatch when build needed) ----
       - name: Prepare release keystore
         if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && steps.check.outputs.should_build == 'true'
         env:
@@ -142,7 +142,7 @@ jobs:
             app/build/outputs/apk/release/output-metadata.json
           if-no-files-found: error
 
-      # ---- 保存本次 commit SHA 供下次 nightly 使用（仅当构建成功） ----
+      # ---- Save current commit SHA for future nightly runs (only upon success) ----
       - name: Save current commit SHA for future nightly
         if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && steps.check.outputs.should_build == 'true'
         run: |
@@ -155,12 +155,11 @@ jobs:
           path: .last-build-sha
           key: nightly-commit-sha-master-${{ github.run_id }}
 
-      # ---- 生成 Job Summary，展示提交信息 ----
+      # ---- Generate Job Summary displaying commit info ----
       - name: Generate job summary
         if: always()
         env:
-          # 多行值必须经 env 传递：run 内联的 ${{ }} 会移除换行，
-          # 且反引号在 bash 双引号内会触发命令替换，破坏 markdown
+          # Multi-line values must pass through env: inline ${{ }} in run strips newlines
           COMMITS: ${{ steps.commit-range.outputs.commits }}
         run: |
           echo "## Build Details" >> $GITHUB_STEP_SUMMARY

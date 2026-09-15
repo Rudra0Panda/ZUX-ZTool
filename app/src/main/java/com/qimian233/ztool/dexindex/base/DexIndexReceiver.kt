@@ -6,10 +6,10 @@ import android.content.Intent
 import android.util.Log
 
 /**
- * 模块安装/更新后触发离线索引。
+ * Triggers offline dex indexing upon module installation/update.
  *
- * 注意：Android 8+ 上 `PACKAGE_ADDED` 静态注册可能收不到，
- * 首次安装场景由 [com.qimian233.ztool.ZToolApplication] 启动指纹检查兜底。
+ * Note: On Android 8+, static registration of `PACKAGE_ADDED` might not be received;
+ * first-install scenarios are backed up by [com.qimian233.ztool.ZToolApplication] startup fingerprint check.
  */
 class DexIndexReceiver : BroadcastReceiver() {
 

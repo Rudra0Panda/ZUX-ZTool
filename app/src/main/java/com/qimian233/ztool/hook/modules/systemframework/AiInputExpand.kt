@@ -7,9 +7,9 @@ import com.qimian233.ztool.hook.base.AppHookModule
 import io.github.libxposed.api.XposedModuleInterface.PackageLoadedParam
 
 /**
- * AI输入法扩展功能Hook模块
- * 功能：扩展AI触发符号，强制开启LGSI AI功能特性
- * 作用域：全局（动态检测类是否存在）
+ * AI IME expansion feature Hook module.
+ * Function: Expands AI trigger symbols and forcibly enables LGSI AI feature flags.
+ * Scope: Global (dynamically detects if target class is present).
  */
 @SuppressLint("PrivateApi")
 class AiInputExpand : AppHookModule() {
@@ -18,23 +18,23 @@ class AiInputExpand : AppHookModule() {
     override fun getTargetPackages(): Array<String?>? = null
 
     /**
-     * 重写此方法以支持全局Hook
-     * 因为RemoteInputConnectionImpl会在各个应用进程中加载
+     * Override to support global hooking,
+     * as RemoteInputConnectionImpl is loaded in various application processes.
      */
     override fun supportsPackage(packageName: String?): Boolean = true
 
     override fun handleLoadPackage(param: PackageLoadedParam) {
         val classLoader = param.defaultClassLoader
-        // 1. 修改 RemoteInputConnectionImpl 触发符号
+        // 1. Modify RemoteInputConnectionImpl trigger symbols
         runCatching { hookRemoteInputConnection(classLoader) }
-        // 2. 强制开启 LgsiFeatures 功能
+        // 2. Forcibly enable LgsiFeatures features
         runCatching { hookLgsiFeatures(classLoader) }
     }
 
     private fun hookRemoteInputConnection(classLoader: ClassLoader) {
         val className = "android.view.inputmethod.RemoteInputConnectionImpl"
 
-        // 检查类是否存在，不存在直接返回，避免无效Hook尝试
+        // Check if class exists; return early if not to avoid invalid hook attempts
         val targetClass: Class<*>?
         try {
             targetClass = classLoader.loadClass(className)
@@ -42,13 +42,13 @@ class AiInputExpand : AppHookModule() {
             return
         }
 
-        // 定义新的触发符号数组，使用新的符号
+        // Define new trigger symbol array using new symbols
         val newSignArray = this.prefStringArray
 
-        // 修改静态常量数组 AI_COMMAND_SIGN_ARRAYS
+        // Modify static constant array AI_COMMAND_SIGN_ARRAYS
         findField(targetClass, "AI_COMMAND_SIGN_ARRAYS").set(null, newSignArray)
 
-        // 修改默认的 AI_COMMAND_SIGN
+        // Modify default AI_COMMAND_SIGN
         findField(targetClass, "AI_COMMAND_SIGN").set(null, "&&")
 
         logger.info("Successfully expanded AI input signs [&&] for package")
@@ -64,7 +64,7 @@ class AiInputExpand : AppHookModule() {
             return
         }
 
-        // 强制 enabled 方法返回 true
+        // Forcibly return true for enabled method
         try {
             val method = featureClass.getDeclaredMethod("enabled", Int::class.javaPrimitiveType)
             hookWithId(
@@ -73,7 +73,7 @@ class AiInputExpand : AppHookModule() {
             ) { true }
             logger.info("Successfully forced LGSI Features check to TRUE")
         } catch (_: NoSuchMethodException) {
-            // 方法不存在，忽略
+            // Method does not exist, ignore
         }
     }
 

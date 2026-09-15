@@ -6,8 +6,8 @@ import com.qimian233.ztool.hook.base.AppHookModule
 import io.github.libxposed.api.XposedModuleInterface.PackageLoadedParam
 
 /**
- * 游戏服务设备型号伪装Hook模块
- * 将设备型号伪装为TB322FC，用于绕过游戏服务的设备检测
+ * Game service device model disguise Hook module.
+ * Disguises device model as TB322FC to bypass game service device checks.
  */
 class DeviceModelDisguiseHook : AppHookModule() {
     override fun getModuleName(): String = PreferenceKeys.DISGUISE_TB322FC.name
@@ -21,10 +21,10 @@ class DeviceModelDisguiseHook : AppHookModule() {
 
     private fun hookDeviceUtils(classLoader: ClassLoader) {
         try {
-            // 查找DeviceUtils类
+            // Find DeviceUtils class
             val deviceUtilsClass = classLoader.loadClass("com.zui.util.DeviceUtils")
 
-            // Hook getBuildModel方法，强制返回目标型号
+            // Hook getBuildModel method to forcibly return target model
             val getBuildModelMethod = deviceUtilsClass.getDeclaredMethod("getBuildModel")
             hookWithId(
                 getBuildModelMethod,

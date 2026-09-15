@@ -7,8 +7,8 @@ import com.qimian233.ztool.hook.base.AppHookModule
 import io.github.libxposed.api.XposedModuleInterface.PackageLoadedParam
 
 /**
- * 禁用联想OTA检查Hook模块
- * 功能：强制显示本地安装菜单项，绕过计数器检查逻辑
+ * Disable Lenovo OTA check Hook module.
+ * Function: Forcibly displays local install menu item, bypassing click counter check logic.
  */
 class DisableOtaCheck : AppHookModule() {
     override fun getModuleName(): String = PreferenceKeys.DISABLE_OTA_CHECK.name
@@ -19,21 +19,21 @@ class DisableOtaCheck : AppHookModule() {
     override fun handleLoadPackage(param: PackageLoadedParam) {
         val classLoader = param.defaultClassLoader
 
-        logger.info("开始挂钩 com.lenovo.ota - 开启本地安装服务")
+        logger.info("Starting hook for com.lenovo.ota - enabling local install service")
 
         try {
             hookOnCreateOptionsMenu(classLoader)
             hookOnPrepareOptionsMenu(classLoader)
             hookClickCountCallBack(classLoader)
 
-            logger.info("所有OTA检查禁用钩子设置完成")
+            logger.info("All OTA check bypass hooks initialized")
         } catch (e: Exception) {
-            logger.error("初始化OTA检查禁用模块时出错", e)
+            logger.error("Error initializing OTA check bypass module", e)
         }
     }
 
     /**
-     * 钩住 onCreateOptionsMenu 方法，确保菜单项不被默认隐藏
+     * Hook onCreateOptionsMenu method to ensure menu items are not hidden by default.
      */
     private fun hookOnCreateOptionsMenu(classLoader: ClassLoader) {
         try {
@@ -49,27 +49,27 @@ class DisableOtaCheck : AppHookModule() {
                 val result = chain.proceed()
                 try {
                     val menu = chain.args[0] as Menu
-                    // 找到本地安装菜单项并设置为可见
+                    // Find local install menu item and set to visible
                     val menuLocalInstallField = findField(rClass, "memu_localInstall")
                     val menuLocalInstallId = menuLocalInstallField.getInt(null)
 
                     val localInstallItem = menu.findItem(menuLocalInstallId)
                     if (localInstallItem != null) {
                         localInstallItem.isVisible = true
-                        logger.debug("在 onCreateOptionsMenu 中启用本地安装菜单")
+                        logger.debug("Enabled local install menu in onCreateOptionsMenu")
                     }
                 } catch (e: Exception) {
-                    logger.error("onCreateOptionsMenu 钩子执行错误", e)
+                    logger.error("onCreateOptionsMenu hook execution error", e)
                 }
                 result
             }
         } catch (e: Exception) {
-            logger.error("设置 onCreateOptionsMenu 钩子失败", e)
+            logger.error("Failed to set onCreateOptionsMenu hook", e)
         }
     }
 
     /**
-     * 钩住 onPrepareOptionsMenu 方法，绕过条件检查
+     * Hook onPrepareOptionsMenu method to bypass condition checks.
      */
     private fun hookOnPrepareOptionsMenu(classLoader: ClassLoader) {
         try {
@@ -85,33 +85,33 @@ class DisableOtaCheck : AppHookModule() {
                 val result = chain.proceed()
                 try {
                     val menu = chain.args[0] as Menu
-                    // 通过反射获取菜单项ID
+                    // Get menu item ID via reflection
                     val menuLocalInstallField = findField(rClass, "memu_localInstall")
                     val menuLocalInstallId = menuLocalInstallField.getInt(null)
 
                     val localInstallItem = menu.findItem(menuLocalInstallId)
                     if (localInstallItem != null) {
-                        // 强制设置为可见，绕过原有的 mCount >= 6 检查
+                        // Forcibly set to visible, bypassing original mCount >= 6 check
                         localInstallItem.isVisible = true
-                        logger.debug("在 onPrepareOptionsMenu 中强制显示本地安装菜单")
+                        logger.debug("Forced local install menu visible in onPrepareOptionsMenu")
                     }
 
-                    // 同时设置计数器为6，确保其他相关逻辑正常工作
+                    // Also set counter to 6 to ensure other related logic works properly
                     val mCountField = mainActivityClass.getDeclaredField("mCount")
                     mCountField.isAccessible = true
                     mCountField.setInt(chain.thisObject, 6)
                 } catch (e: Exception) {
-                    logger.error("onPrepareOptionsMenu 钩子执行错误", e)
+                    logger.error("onPrepareOptionsMenu hook execution error", e)
                 }
                 result
             }
         } catch (e: Exception) {
-            logger.error("设置 onPrepareOptionsMenu 钩子失败", e)
+            logger.error("Failed to set onPrepareOptionsMenu hook", e)
         }
     }
 
     /**
-     * 钩住 clickCountCallBack 方法，确保计数器始终满足条件
+     * Hook clickCountCallBack method to ensure counter always satisfies condition.
      */
     private fun hookClickCountCallBack(classLoader: ClassLoader) {
         try {
@@ -123,13 +123,13 @@ class DisableOtaCheck : AppHookModule() {
                 clickCountCallBack,
                 "click_count_call_back"
             ) { chain ->
-                // 在调用前直接设置计数器为6
+                // Directly set counter to 6 before calling
                 mCountField.setInt(chain.thisObject, 6)
-                logger.debug("在 clickCountCallBack 前强制设置计数器为6")
+                logger.debug("Forced counter to 6 before clickCountCallBack")
                 chain.proceed()
             }
         } catch (e: Exception) {
-            logger.error("设置 clickCountCallBack 钩子失败", e)
+            logger.error("Failed to set clickCountCallBack hook", e)
         }
     }
 

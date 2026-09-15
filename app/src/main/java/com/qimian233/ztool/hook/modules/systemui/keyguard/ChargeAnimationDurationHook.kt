@@ -6,11 +6,11 @@ import com.qimian233.ztool.hook.base.AppHookModule
 import io.github.libxposed.api.XposedModuleInterface.PackageLoadedParam
 
 /**
- * 充电动画时长 Hook 模块
+ * Charging animation duration hook module.
  *
- * 锁屏充电动画由 ChargingActivity 通过静态字段 DURATION（默认 3500ms，
- * 由资源 config_chargingAnimationDuration 决定）控制 postDelayed 超时结束。
- * 本模块在 onResume 前改写该静态字段，使超时定时器使用用户自定义时长。
+ * Lock screen charging animation is controlled by ChargingActivity via static field DURATION (default 3500ms,
+ * determined by resource config_chargingAnimationDuration) via postDelayed timeout.
+ * This module rewrites this static field before onResume so the timeout timer uses user-configured duration.
  */
 class ChargeAnimationDurationHook : AppHookModule() {
     override fun getModuleName(): String = PreferenceKeys.CHARGE_ANIMATION_DURATION.name
